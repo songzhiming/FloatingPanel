@@ -26,6 +26,7 @@ class SampleListViewController: UIViewController {
         case showIntrinsicView
         case showContentInset
         case showContainerMargins
+        case showBottomEdgeInteraction
 
         var name: String {
             switch self {
@@ -42,6 +43,7 @@ class SampleListViewController: UIViewController {
             case .showIntrinsicView: return "Show Intrinsic View"
             case .showContentInset: return "Show with ContentInset"
             case .showContainerMargins: return "Show with ContainerMargins"
+            case .showBottomEdgeInteraction: return "Show bottom edge interaction"
             }
         }
 
@@ -60,6 +62,7 @@ class SampleListViewController: UIViewController {
             case .showIntrinsicView: return "IntrinsicViewController"
             case .showContentInset: return nil
             case .showContainerMargins: return nil
+            case .showBottomEdgeInteraction: return nil
             }
         }
     }
@@ -143,6 +146,12 @@ class SampleListViewController: UIViewController {
 
             let backdropTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleBackdrop(tapGesture:)))
             mainPanelVC.backdropView.addGestureRecognizer(backdropTapGesture)
+        case .showBottomEdgeInteraction: // For debug
+            let contentVC = UIViewController()
+            contentVC.view.backgroundColor = .red
+            mainPanelVC.set(contentViewController: contentVC)
+            mainPanelVC.addPanel(toParent: self, belowView: nil, animated: true)
+            return
         default:
             break
         }
@@ -374,6 +383,8 @@ extension SampleListViewController: FloatingPanelControllerDelegate {
         }
 
         switch currentMenu {
+        case .showBottomEdgeInteraction:
+            return BottomEdgeInteractionLayout()
         case .showRemovablePanel:
             return newCollection.verticalSizeClass == .compact ? RemovablePanelLandscapeLayout() :  RemovablePanelLayout()
         case .showIntrinsicView:
@@ -453,6 +464,24 @@ extension SampleListViewController: UIPageViewControllerDelegate {
     func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
         if completed, let page = pageViewController.viewControllers?.first {
             (pageViewController.parent as! FloatingPanelController).track(scrollView: (page as! DebugTableViewController).tableView)
+        }
+    }
+}
+
+class BottomEdgeInteractionLayout: FloatingPanelLayout {
+    var interactiveEdge: UIRectEdge = .bottom
+    var initialPosition: FloatingPanelPosition = .full
+
+    func insetFor(position: FloatingPanelPosition) -> CGFloat? {
+        switch position {
+        case .tip:
+            return 44.0
+        case .half:
+            return 216.0
+        case .full:
+            return 88.0
+        default:
+            return nil
         }
     }
 }
