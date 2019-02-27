@@ -33,11 +33,32 @@ class FloatingPanelTestDelegate: FloatingPanelControllerDelegate {
     }
 }
 
-protocol FloatingPanelTestLayout: FloatingPanelFullScreenLayout {}
+protocol FloatingPanelTestLayout: FloatingPanelLayout {}
 extension FloatingPanelTestLayout {
+    var positionReference: FloatingPanelLayoutReference {
+        return .fromSuperview
+    }
     func insetFor(position: FloatingPanelPosition) -> CGFloat? {
         switch position {
         case .full: return 20.0
+        case .half: return 250.0
+        case .tip: return 60.0
+        default: return nil
+        }
+    }
+}
+
+protocol FloatingPanelTop2BottomTestLayout: FloatingPanelLayout {}
+extension FloatingPanelTop2BottomTestLayout {
+    var interactiveEdge: UIRectEdge {
+        return .bottom
+    }
+    var positionReference: FloatingPanelLayoutReference {
+        return .fromSuperview
+    }
+    func insetFor(position: FloatingPanelPosition) -> CGFloat? {
+        switch position {
+        case .full: return 0.0
         case .half: return 250.0
         case .tip: return 60.0
         default: return nil

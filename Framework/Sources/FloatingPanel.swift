@@ -395,9 +395,9 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
                     // Workaround: Prevent stopping the surface view b/w anchors if the pan gesture
                     // doesn't pass through .changed state after an interruptible animator is interrupted.
                     let dy = translation.y - .leastNonzeroMagnitude
-                    layoutAdapter.updateInteractiveTopConstraint(diff: dy,
-                                                                 allowsTopBuffer: true,
-                                                                 with: behavior)
+                    layoutAdapter.updateInteractiveEdgeConstraint(diff: dy,
+                                                                  allowsTopBuffer: true,
+                                                                  with: behavior)
                 }
                 panningEnd(with: translation, velocity: velocity)
             default:
@@ -482,9 +482,9 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         let preY = surfaceView.frame.minY
         let dy = translation.y - initialTranslationY
 
-        layoutAdapter.updateInteractiveTopConstraint(diff: dy,
-                                                     allowsTopBuffer: allowsTopBuffer(for: dy),
-                                                     with: behavior)
+        layoutAdapter.updateInteractiveEdgeConstraint(diff: dy,
+                                                      allowsTopBuffer: allowsTopBuffer(for: dy),
+                                                      with: behavior)
 
         let currentY = surfaceView.frame.minY
         backdropView.alpha = getBackdropAlpha(at: currentY, with: translation)
@@ -630,7 +630,7 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         let num = (currentY - posY)
         let den = (hiddenY - posY)
 
-        guard num >= 0, den != 0, (num / den >= pth || velocityVector.dy == vth)
+        guard num >= 0, den != 0, (num / den >= pth || velocityVector.dy == abs(vth))
         else { return false }
 
         return true

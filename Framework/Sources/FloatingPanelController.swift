@@ -573,7 +573,13 @@ open class FloatingPanelController: UIViewController {
     }
 
     /// Returns the y-coordinate of the point at the origin of the surface view.
+    @available(*, unavailable, renamed: "surfaceOffset(for:)")
     public func originYOfSurface(for pos: FloatingPanelPosition) -> CGFloat {
+        return floatingPanel.layoutAdapter.positionY(for: pos)
+    }
+
+    // TODO: CGFloat -> CGPoint
+    public func surfaceOffset(for pos: FloatingPanelPosition) -> CGFloat {
         return floatingPanel.layoutAdapter.positionY(for: pos)
     }
 }

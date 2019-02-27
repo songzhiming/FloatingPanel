@@ -51,6 +51,8 @@ public class FloatingPanelSurfaceView: UIView {
         set { color = newValue }
     }
 
+    var interactiveEdge: UIRectEdge = .top
+
     /// The radius to use when drawing top rounded corners.
     ///
     /// `self.contentView` is masked with the top rounded corners automatically on iOS 11 and later.
@@ -205,7 +207,9 @@ public class FloatingPanelSurfaceView: UIView {
             // Don't use `contentView.clipToBounds` because it prevents content view from expanding the height of a subview of it
             // for the bottom overflow like Auto Layout settings of UIVisualEffectView in Main.storyboard of Example/Maps.
             // Because the bottom of contentView must be fit to the bottom of a screen to work the `safeLayoutGuide` of a content VC.
-            containerView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+            contentView?.layer.maskedCorners = (interactiveEdge == .top) ?
+                [.layerMinXMinYCorner, .layerMaxXMinYCorner] :
+                [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
         } else {
             // Can't use `containerView.layer.mask` because of a UIVisualEffectView issue in iOS 10, https://forums.developer.apple.com/thread/50854
             // Instead, a user should display rounding corners appropriately.
