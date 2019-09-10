@@ -166,11 +166,14 @@ class FloatingPanelLayoutTests: XCTestCase {
             var initialPosition: FloatingPanelPosition = .half
         }
         let delegate = FloatingPanelTestDelegate()
-        delegate.layout = MyFloatingPanelTop2BottomLayout()
+        let layout = MyFloatingPanelTop2BottomLayout()
+        delegate.layout = layout
         fpc.delegate = delegate
         fpc.showForTest()
         fpc.move(to: .tip, animated: false)
         XCTAssertEqual(fpc.surfaceView.frame, CGRect(x: 0.0, y: -667.0 + 60.0, width: 375.0, height: 667))
+        XCTAssertEqual(fpc.surfaceView.containerView.frame, CGRect(x: 0.0, y: -667.0,
+                                                                   width: 375.0, height: 667 * 2.0))
 
         fpc.floatingPanel.layoutAdapter.startInteraction(at: fpc.position)
         fpc.floatingPanel.layoutAdapter.startInteraction(at: fpc.position) // Should be ignore

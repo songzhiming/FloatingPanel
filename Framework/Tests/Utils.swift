@@ -50,7 +50,7 @@ extension FloatingPanelTestLayout {
 
 protocol FloatingPanelTop2BottomTestLayout: FloatingPanelLayout {}
 extension FloatingPanelTop2BottomTestLayout {
-    var interactiveEdge: UIRectEdge {
+    var interactiveEdge: FloatingPanelRectEdge {
         return .bottom
     }
     var positionReference: FloatingPanelLayoutReference {

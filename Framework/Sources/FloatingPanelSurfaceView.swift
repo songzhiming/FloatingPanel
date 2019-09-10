@@ -7,21 +7,20 @@ import UIKit
 
 /// A view that presents a surface interface in a floating panel.
 public class FloatingPanelSurfaceView: UIView {
-
     /// A GrabberHandleView object displayed at the top of the surface view.
     ///
     /// To use a custom grabber handle, hide this and then add the custom one
     /// to the surface view at appropriate coordinates.
     public let grabberHandle: GrabberHandleView = GrabberHandleView()
 
-    /// Offset of the grabber handle from the top
-    public var grabberTopPadding: CGFloat = 6.0 { didSet {
+    /// Offset of the grabber handle from the interactive edge.
+    public var grabberPaddingFromEdge: CGFloat = 6.0 { didSet {
         setNeedsUpdateConstraints()
     } }
 
     /// The height of the grabber bar area
     public var topGrabberBarHeight: CGFloat {
-        return grabberTopPadding * 2 + grabberHandleHeight
+        return grabberPaddingFromEdge * 2 + grabberHandleHeight
     }
 
     /// Grabber view width and height
@@ -50,8 +49,6 @@ public class FloatingPanelSurfaceView: UIView {
         get { return color }
         set { color = newValue }
     }
-
-    var interactiveEdge: UIRectEdge = .top
 
     /// The radius to use when drawing top rounded corners.
     ///
@@ -99,7 +96,25 @@ public class FloatingPanelSurfaceView: UIView {
     @available(*, unavailable, renamed: "containerView")
     public var backgroundView: UIView!
 
-    private lazy var containerViewTopConstraint = containerView.topAnchor.constraint(equalTo: topAnchor, constant: containerMargins.top)
+    var interactiveEdge: FloatingPanelRectEdge = .top {
+        didSet {
+            guard interactiveEdge != oldValue else { return }
+            NSLayoutConstraint.deactivate([containerViewEdgeConstraint,
+                                           grabberHandleEdgePaddingConstraint])
+            switch interactiveEdge {
+            case .top:
+                containerViewEdgeConstraint = containerView.topAnchor.constraint(equalTo: topAnchor, constant: containerMargins.top)
+                grabberHandleEdgePaddingConstraint = grabberHandle.topAnchor.constraint(equalTo: topAnchor, constant: grabberPaddingFromEdge)
+            case .bottom:
+                containerViewEdgeConstraint = containerView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: containerMargins.bottom)
+                grabberHandleEdgePaddingConstraint = grabberHandle.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -grabberPaddingFromEdge)
+            }
+            NSLayoutConstraint.activate([containerViewEdgeConstraint,
+                                         grabberHandleEdgePaddingConstraint])
+        }
+    }
+
+    private lazy var containerViewEdgeConstraint = containerView.topAnchor.constraint(equalTo: topAnchor, constant: containerMargins.top)
     private lazy var containerViewHeightConstraint = containerView.heightAnchor.constraint(equalTo: heightAnchor, multiplier: 1.0)
     private lazy var containerViewLeftConstraint = containerView.leftAnchor.constraint(equalTo: leftAnchor, constant: 0.0)
     private lazy var containerViewRightConstraint = containerView.rightAnchor.constraint(equalTo: rightAnchor, constant: 0.0)
@@ -115,7 +130,7 @@ public class FloatingPanelSurfaceView: UIView {
 
     private lazy var grabberHandleWidthConstraint = grabberHandle.widthAnchor.constraint(equalToConstant: grabberHandleWidth)
     private lazy var grabberHandleHeightConstraint = grabberHandle.heightAnchor.constraint(equalToConstant: grabberHandleHeight)
-    private lazy var grabberHandleTopConstraint = grabberHandle.topAnchor.constraint(equalTo: topAnchor, constant: grabberTopPadding)
+    private lazy var grabberHandleEdgePaddingConstraint = grabberHandle.topAnchor.constraint(equalTo: topAnchor, constant: grabberPaddingFromEdge)
 
     public override class var requiresConstraintBasedLayout: Bool { return true }
 
@@ -136,7 +151,7 @@ public class FloatingPanelSurfaceView: UIView {
         addSubview(containerView)
         containerView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            containerViewTopConstraint,
+            containerViewEdgeConstraint,
             containerViewLeftConstraint,
             containerViewRightConstraint,
             containerViewHeightConstraint,
@@ -147,23 +162,29 @@ public class FloatingPanelSurfaceView: UIView {
         NSLayoutConstraint.activate([
             grabberHandleWidthConstraint,
             grabberHandleHeightConstraint,
-            grabberHandleTopConstraint,
+            grabberHandleEdgePaddingConstraint,
             grabberHandle.centerXAnchor.constraint(equalTo: centerXAnchor),
             ])
     }
 
     public override func updateConstraints() {
-        containerViewTopConstraint.constant = containerMargins.top
+        switch interactiveEdge {
+        case .top:
+            containerViewEdgeConstraint.constant = containerMargins.top
+            containerViewHeightConstraint.constant = (containerMargins.bottom == 0) ? bottomOverflow : -(containerMargins.top + containerMargins.bottom)
+        case .bottom:
+            containerViewEdgeConstraint.constant = containerMargins.bottom
+            containerViewHeightConstraint.constant = (containerMargins.top == 0) ? bottomOverflow : -(containerMargins.top + containerMargins.bottom)
+        }
         containerViewLeftConstraint.constant = containerMargins.left
         containerViewRightConstraint.constant = -containerMargins.right
-        containerViewHeightConstraint.constant = (containerMargins.bottom == 0) ? bottomOverflow : -(containerMargins.top + containerMargins.bottom)
 
         contentViewTopConstraint?.constant = containerMargins.top + contentInsets.top
         contentViewLeftConstraint?.constant = containerMargins.left + contentInsets.left
         contentViewRightConstraint?.constant = containerMargins.right + contentInsets.right
         contentViewHeightConstraint?.constant = -(containerMargins.top + containerMargins.bottom + contentInsets.top + contentInsets.bottom)
 
-        grabberHandleTopConstraint.constant = grabberTopPadding
+        grabberHandleEdgePaddingConstraint.constant = (interactiveEdge == .top) ? grabberPaddingFromEdge : -grabberPaddingFromEdge
         grabberHandleWidthConstraint.constant = grabberHandleWidth
         grabberHandleHeightConstraint.constant = grabberHandleHeight
 
@@ -207,9 +228,11 @@ public class FloatingPanelSurfaceView: UIView {
             // Don't use `contentView.clipToBounds` because it prevents content view from expanding the height of a subview of it
             // for the bottom overflow like Auto Layout settings of UIVisualEffectView in Main.storyboard of Example/Maps.
             // Because the bottom of contentView must be fit to the bottom of a screen to work the `safeLayoutGuide` of a content VC.
-            contentView?.layer.maskedCorners = (interactiveEdge == .top) ?
-                [.layerMinXMinYCorner, .layerMaxXMinYCorner] :
-                [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+            if interactiveEdge == .top {
+                contentView?.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+            } else {
+                contentView?.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+            }
         } else {
             // Can't use `containerView.layer.mask` because of a UIVisualEffectView issue in iOS 10, https://forums.developer.apple.com/thread/50854
             // Instead, a user should display rounding corners appropriately.

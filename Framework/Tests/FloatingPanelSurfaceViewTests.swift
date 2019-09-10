@@ -23,20 +23,102 @@ class FloatingPanelSurfaceViewTests: XCTestCase {
         XCTAssert(surface.backgroundColor == surface.containerView.backgroundColor)
     }
 
-    func test_surfaceView_grabberHandle() {
-        let surface = FloatingPanelSurfaceView(frame: CGRect(x: 0.0, y: 0.0, width: 320.0, height: 480.0))
-        XCTAssert(surface.contentView == nil)
-        surface.layoutIfNeeded()
-        XCTAssert(surface.grabberHandle.frame.minY == 6.0)
-        XCTAssert(surface.grabberHandle.frame.width == surface.grabberHandleWidth)
-        XCTAssert(surface.grabberHandle.frame.height == surface.grabberHandleHeight)
+    func test_surfaceView_containerView() {
+        XCTContext.runActivity(named: "Top interactive edge") { _ in
+            let surface = FloatingPanelSurfaceView(frame: CGRect(x: 0.0, y: 0.0, width: 320.0, height: 480.0))
+            XCTAssertNil(surface.contentView)
+            surface.layoutIfNeeded()
 
-        surface.grabberHandleWidth = 44.0
-        surface.grabberHandleHeight = 12.0
-        surface.setNeedsLayout()
-        surface.layoutIfNeeded()
-        XCTAssert(surface.grabberHandle.frame.width == surface.grabberHandleWidth, "\(surface.grabberHandle.frame.width) == \(surface.grabberHandleWidth)")
-        XCTAssert(surface.grabberHandle.frame.height == surface.grabberHandleHeight, "\(surface.grabberHandle.frame.height) == \(surface.grabberHandleHeight)")
+            let height = surface.bounds.height * 2
+            surface.bottomOverflow = height
+            surface.setNeedsLayout()
+            surface.layoutIfNeeded()
+            XCTAssertEqual(surface.containerView.frame, CGRect(x: 0.0, y: 0.0, width: 320.0, height: 480.0 * 3))
+        }
+
+        XCTContext.runActivity(named: "Bottom interactive edge") { _ in
+            let surface = FloatingPanelSurfaceView(frame: CGRect(x: 0.0, y: 0.0, width: 320.0, height: 480.0))
+            surface.interactiveEdge = .bottom
+            XCTAssertNil(surface.contentView)
+            surface.layoutIfNeeded()
+
+            let height = surface.bounds.height * 2
+            surface.bottomOverflow = height
+            surface.setNeedsLayout()
+            surface.layoutIfNeeded()
+            XCTAssertEqual(surface.containerView.frame, CGRect(x: 0.0, y: -height, width: 320.0, height: 480.0 * 3))
+        }
+    }
+
+    func test_surfaceView_contentView() {
+        XCTContext.runActivity(named: "Top interactive edge") { _ in
+            let surface = FloatingPanelSurfaceView(frame: CGRect(x: 0.0, y: 0.0, width: 320.0, height: 480.0))
+            surface.layoutIfNeeded()
+
+            let contentView = UIView()
+            surface.add(contentView: contentView)
+
+            let height = surface.bounds.height * 2
+            surface.bottomOverflow = height
+            surface.setNeedsLayout()
+            surface.layoutIfNeeded()
+            XCTAssertEqual(surface.contentView.frame, surface.bounds)
+        }
+
+        XCTContext.runActivity(named: "Bottom interactive edge") { _ in
+            let surface = FloatingPanelSurfaceView(frame: CGRect(x: 0.0, y: 0.0, width: 320.0, height: 480.0))
+            surface.interactiveEdge = .bottom
+            surface.layoutIfNeeded()
+
+            let contentView = UIView()
+            surface.add(contentView: contentView)
+
+            let height = surface.bounds.height * 2
+            surface.bottomOverflow = height
+            surface.setNeedsLayout()
+            surface.layoutIfNeeded()
+            XCTAssertEqual(surface.containerView.frame, CGRect(x: 0.0, y: -height, width: 320.0, height: 480.0 * 3))
+            XCTAssertEqual(surface.convert(surface.contentView.frame, from: surface.containerView),
+                           surface.bounds)
+        }
+    }
+
+
+    func test_surfaceView_grabberHandle() {
+        XCTContext.runActivity(named: "Top interactive edge") { _ in
+            let surface = FloatingPanelSurfaceView(frame: CGRect(x: 0.0, y: 0.0, width: 320.0, height: 480.0))
+            XCTAssertNil(surface.contentView)
+            surface.layoutIfNeeded()
+
+            XCTAssertEqual(surface.grabberHandle.frame.minY,  6.0)
+            XCTAssertEqual(surface.grabberHandle.frame.width, surface.grabberHandleWidth)
+            XCTAssertEqual(surface.grabberHandle.frame.height, surface.grabberHandleHeight)
+
+            surface.grabberPaddingFromEdge = 10.0
+            surface.grabberHandleWidth = 44.0
+            surface.grabberHandleHeight = 12.0
+            surface.setNeedsLayout()
+            surface.layoutIfNeeded()
+            XCTAssertEqual(surface.grabberHandle.frame.minY,  surface.grabberPaddingFromEdge)
+            XCTAssertEqual(surface.grabberHandle.frame.width, surface.grabberHandleWidth)
+            XCTAssertEqual(surface.grabberHandle.frame.height, surface.grabberHandleHeight)
+        }
+
+        XCTContext.runActivity(named: "Bottom interactive edge") { _ in
+            let surface = FloatingPanelSurfaceView(frame: CGRect(x: 0.0, y: 0.0, width: 320.0, height: 480.0))
+            surface.interactiveEdge = .bottom
+            XCTAssertNil(surface.contentView)
+            surface.layoutIfNeeded()
+
+            XCTAssertEqual(surface.grabberHandle.frame.maxY, (surface.bounds.maxY - 6.0))
+            XCTAssertEqual(surface.grabberHandle.frame.width, surface.grabberHandleWidth)
+            XCTAssertEqual(surface.grabberHandle.frame.height, surface.grabberHandleHeight)
+
+            surface.grabberPaddingFromEdge = 10.0
+            surface.setNeedsLayout()
+            surface.layoutIfNeeded()
+            XCTAssertEqual(surface.grabberHandle.frame.maxY,  surface.bounds.maxY - surface.grabberPaddingFromEdge)
+        }
     }
 
     func test_surfaceView_containerMargins() {

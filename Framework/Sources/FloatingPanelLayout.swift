@@ -95,7 +95,12 @@ public protocol FloatingPanelLayout: class {
 
     var positionReference: FloatingPanelLayoutReference { get }
 
-    var interactiveEdge: UIRectEdge { get }
+    var interactiveEdge: FloatingPanelRectEdge { get }
+}
+
+public enum FloatingPanelRectEdge: Int {
+    case top
+    case bottom
 }
 
 public extension FloatingPanelLayout {
@@ -120,7 +125,7 @@ public extension FloatingPanelLayout {
     var positionReference: FloatingPanelLayoutReference {
         return .fromSafeArea
     }
-    var interactiveEdge: UIRectEdge {
+    var interactiveEdge: FloatingPanelRectEdge {
         return .top
     }
 }
@@ -474,34 +479,34 @@ class FloatingPanelLayoutAdapter {
         guard self.interactiveEdgeConstraint == nil else { return }
         NSLayoutConstraint.deactivate(fullConstraints + halfConstraints + tipConstraints + offConstraints)
 
-        let interactiveEdgeConstraint: NSLayoutConstraint
+        let edgeConst: NSLayoutConstraint
         switch layout.interactiveEdge {
         case .top:
             switch layout.positionReference {
             case .fromSafeArea:
                 initialConst = surfaceView.frame.minY - safeAreaInsets.top + offset.y
-                interactiveEdgeConstraint = surfaceView.topAnchor.constraint(equalTo: vc.layoutGuide.topAnchor,
-                                                                            constant: initialConst)
+                edgeConst = surfaceView.topAnchor.constraint(equalTo: vc.layoutGuide.topAnchor,
+                                                             constant: initialConst)
             case .fromSuperview:
                 initialConst = surfaceView.frame.minY + offset.y
-                interactiveEdgeConstraint = surfaceView.topAnchor.constraint(equalTo: vc.view.topAnchor,
-                                                                            constant: initialConst)
+                edgeConst = surfaceView.topAnchor.constraint(equalTo: vc.view.topAnchor,
+                                                             constant: initialConst)
             }
         case .bottom:
             switch layout.positionReference {
             case .fromSafeArea:
                 initialConst = surfaceView.frame.maxY - safeAreaInsets.top + offset.y
-                interactiveEdgeConstraint = surfaceView.bottomAnchor.constraint(equalTo: vc.layoutGuide.topAnchor,
-                                                                                constant: initialConst)
+                edgeConst = surfaceView.bottomAnchor.constraint(equalTo: vc.layoutGuide.topAnchor,
+                                                                constant: initialConst)
             case .fromSuperview:
                 initialConst = surfaceView.frame.maxY + offset.y
-                interactiveEdgeConstraint = surfaceView.bottomAnchor.constraint(equalTo: vc.view.topAnchor,
-                                                                                constant: initialConst)
+                edgeConst = surfaceView.bottomAnchor.constraint(equalTo: vc.view.topAnchor,
+                                                                constant: initialConst)
             }
         }
 
-        NSLayoutConstraint.activate([interactiveEdgeConstraint])
-        self.interactiveEdgeConstraint = interactiveEdgeConstraint
+        NSLayoutConstraint.activate([edgeConst])
+        self.interactiveEdgeConstraint = edgeConst
     }
 
     func endInteraction(at state: FloatingPanelPosition) {
@@ -559,7 +564,7 @@ class FloatingPanelLayoutAdapter {
         }
         NSLayoutConstraint.activate(constraint: heightConstraint)
 
-        surfaceView.bottomOverflow = vc.view.bounds.height + layout.topInteractionBuffer
+        surfaceView.bottomOverflow = vc.view.bounds.height
     }
 
     // TODO: Support interactive bottom edge
