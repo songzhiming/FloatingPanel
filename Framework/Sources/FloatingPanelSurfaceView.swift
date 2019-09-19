@@ -114,6 +114,22 @@ public class FloatingPanelSurfaceView: UIView {
         }
     }
 
+    var grabberAreaFrame: CGRect {
+        switch interactiveEdge {
+        case .top:
+            return CGRect(x: bounds.minX,
+                          y: bounds.minY,
+                          width: bounds.width,
+                          height: topGrabberBarHeight * 2)
+        case .bottom:
+            let height = topGrabberBarHeight * 2
+            return CGRect(x: bounds.minX,
+                          y: bounds.maxY - height,
+                          width: bounds.width,
+                          height: height)
+        }
+    }
+
     private lazy var containerViewEdgeConstraint = containerView.topAnchor.constraint(equalTo: topAnchor, constant: containerMargins.top)
     private lazy var containerViewHeightConstraint = containerView.heightAnchor.constraint(equalTo: heightAnchor, multiplier: 1.0)
     private lazy var containerViewLeftConstraint = containerView.leftAnchor.constraint(equalTo: leftAnchor, constant: 0.0)

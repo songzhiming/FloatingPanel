@@ -245,6 +245,20 @@ class FloatingPanelLayoutAdapter {
         }
     }
 
+    var edgeMostState: FloatingPanelPosition {
+        switch layout.interactiveEdge {
+        case .top: return topMostState
+        case .bottom: return bottomMostState
+        }
+    }
+
+    var edgeLeastState: FloatingPanelPosition {
+        switch layout.interactiveEdge {
+        case .top: return bottomMostState
+        case .bottom: return topMostState
+        }
+    }
+
     var topY: CGFloat {
         return positionY(for: topMostState)
     }
@@ -259,6 +273,13 @@ class FloatingPanelLayoutAdapter {
 
     var bottomMaxY: CGFloat {
         return bottomY + layout.bottomInteractionBuffer
+    }
+
+    var edgeMostY: CGFloat {
+        switch layout.interactiveEdge {
+        case .top: return topY
+        case .bottom: return bottomY
+        }
     }
 
     var adjustedContentInsets: UIEdgeInsets {
@@ -353,6 +374,33 @@ class FloatingPanelLayoutAdapter {
         self.layout = layout
         self.surfaceView = surfaceView
         self.backdropView = backdropView
+    }
+
+    var offsetFromEdgeMost: CGFloat {
+        switch layout.interactiveEdge {
+        case .top:
+            return topY - surfaceView.presentationFrame.minY
+        case .bottom:
+            return surfaceView.presentationFrame.maxY - bottomY
+        }
+    }
+
+    var offsetFromEdgeMostBuffer: CGFloat {
+        switch layout.interactiveEdge {
+        case .top:
+            return topMaxY - surfaceView.presentationFrame.minY
+        case .bottom:
+            return surfaceView.presentationFrame.maxY - bottomMaxY
+        }
+    }
+
+    func edgeY(_ frame: CGRect) -> CGFloat {
+        switch layout.interactiveEdge {
+        case .top:
+            return frame.minY
+        case .bottom:
+            return frame.maxY
+        }
     }
 
     func updateIntrinsicHeight() {
@@ -583,6 +631,7 @@ class FloatingPanelLayoutAdapter {
     func updateInteractiveEdgeConstraint(diff: CGFloat, allowsTopBuffer: Bool, with behavior: FloatingPanelBehavior) {
         defer {
             layoutSurfaceIfNeeded() // MUST be called to update `surfaceView.frame`
+            log.debug("update edge -- surface edge Y = \(self.edgeY(self.surfaceView.presentationFrame))")
         }
 
         let topMostConst: CGFloat = {
