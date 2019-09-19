@@ -787,13 +787,11 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
 
     func targetPosition(from currentY: CGFloat, with velocity: CGPoint) -> (FloatingPanelPosition) {
         guard let vc = viewcontroller else { return state }
-        let supportedPositions = layoutAdapter.supportedPositions
+        let sortedPositions = layoutAdapter.sortedDirectionalPositions
 
-        guard supportedPositions.count > 1 else {
+        guard sortedPositions.count > 1 else {
             return state
         }
-
-        let sortedPositions = Array(supportedPositions).sorted(by: { $0.rawValue < $1.rawValue })
 
         // Projection
         let decelerationRate = behavior.momentumProjectionRate(vc)

@@ -221,6 +221,12 @@ class FloatingPanelLayoutAdapter {
         return layout.supportedPositions
     }
 
+    var sortedDirectionalPositions: [FloatingPanelPosition] {
+        return supportedPositions.sorted(by: {
+            layout.interactiveEdge == .top ? $0.rawValue < $1.rawValue : $0.rawValue > $1.rawValue
+        })
+    }
+
     var topMostState: FloatingPanelPosition {
         switch layout.interactiveEdge {
         case .top:
@@ -716,7 +722,8 @@ class FloatingPanelLayoutAdapter {
         /// |-------|-------x=======|  |-------|=======x-------|
         /// |-------|-------|===o===|  |-------|===o===|-------|
         /// pos: o/x, seguement: =
-        let sortedPositions = supportedPositions.sorted(by: { $0.rawValue < $1.rawValue })
+
+        let sortedPositions = sortedDirectionalPositions
 
         let upperIndex: Int?
         if forward {
