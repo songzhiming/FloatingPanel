@@ -283,7 +283,7 @@ class FloatingPanelLayoutAdapter {
             switch layout.interactiveEdge {
             case .top:
                 if layout is FloatingPanelIntrinsicLayout {
-                    return bounds.height - intrinsicHeight
+                    return bounds.height - intrinsicHeight - safeAreaInsets.bottom
                 }
                 switch layout.positionReference {
                 case .fromSafeArea:
@@ -293,7 +293,7 @@ class FloatingPanelLayoutAdapter {
                 }
             case .bottom:
                 if layout is FloatingPanelIntrinsicLayout {
-                    return intrinsicHeight
+                    return intrinsicHeight + safeAreaInsets.top
                 }
                 switch layout.positionReference {
                 case .fromSafeArea:
@@ -362,11 +362,17 @@ class FloatingPanelLayoutAdapter {
         let fittingSize = UILayoutFittingCompressedSize
         #endif
         var intrinsicHeight = surfaceView.contentView?.systemLayoutSizeFitting(fittingSize).height ?? 0.0
-        var safeAreaBottom: CGFloat = 0.0
-        if #available(iOS 11.0, *) {
-            safeAreaBottom = surfaceView.contentView?.safeAreaInsets.bottom ?? 0.0
-            if safeAreaBottom > 0 {
+        var safeAreaInset: CGFloat = 0.0
+        switch layout.interactiveEdge {
+        case .top:
+            safeAreaInset = vc.contentViewController?.layoutInsets.bottom ?? 0.0
+            if safeAreaInset > 0 {
                 intrinsicHeight -= safeAreaInsets.bottom
+            }
+        case .bottom:
+            safeAreaInset = vc.contentViewController?.layoutInsets.top ?? 0.0
+            if safeAreaInset > 0 {
+                intrinsicHeight -= safeAreaInsets.top
             }
         }
         self.intrinsicHeight = max(intrinsicHeight, 0.0)
@@ -374,7 +380,7 @@ class FloatingPanelLayoutAdapter {
         log.debug("Update intrinsic height =", intrinsicHeight,
                   ", surface(height) =", surfaceView.frame.height,
                   ", content(height) =", surfaceView.contentView?.frame.height ?? 0.0,
-                  ", content safe area(bottom) =", safeAreaBottom)
+                  ", content safe area inset =", safeAreaInset)
     }
 
     // TODO: Support interactive bottom edge
@@ -562,7 +568,7 @@ class FloatingPanelLayoutAdapter {
         case .bottom:
             switch layout {
             case is FloatingPanelIntrinsicLayout:
-                heightConstraint = surfaceView.heightAnchor.constraint(equalToConstant: intrinsicHeight + safeAreaInsets.bottom)
+                heightConstraint = surfaceView.heightAnchor.constraint(equalToConstant: intrinsicHeight + safeAreaInsets.top)
             default:
                 heightConstraint = surfaceView.heightAnchor.constraint(equalTo: vc.view.heightAnchor,
                                                                        constant: -(safeAreaInsets.bottom + fullInset))
