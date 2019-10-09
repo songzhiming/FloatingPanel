@@ -102,7 +102,7 @@ class ViewController: UIViewController, MKMapViewDelegate, UISearchBarDelegate, 
 
     func floatingPanelDidMove(_ vc: FloatingPanelController) {
         let y = vc.surfaceView.frame.origin.y
-        let tipY = vc.originYOfSurface(for: .tip)
+        let tipY = vc.surfaceOffset(for: .tip)
         if y > tipY - 44.0 {
             let progress = max(0.0, min((tipY  - y) / 44.0, 1.0))
             self.searchVC.tableView.alpha = progress
@@ -110,14 +110,14 @@ class ViewController: UIViewController, MKMapViewDelegate, UISearchBarDelegate, 
     }
 
     func floatingPanelWillBeginDragging(_ vc: FloatingPanelController) {
-        if vc.position == .full {
+        if vc.state == .full {
             searchVC.searchBar.showsCancelButton = false
             searchVC.searchBar.resignFirstResponder()
         }
     }
 
-    func floatingPanelDidEndDragging(_ vc: FloatingPanelController, withVelocity velocity: CGPoint, targetPosition: FloatingPanelPosition) {
-        if targetPosition != .full {
+    func floatingPanelDidEndDragging(_ vc: FloatingPanelController, withVelocity velocity: CGPoint, targetState: FloatingPanelState) {
+        if targetState != .full {
             searchVC.hideHeader()
         }
 
@@ -125,7 +125,7 @@ class ViewController: UIViewController, MKMapViewDelegate, UISearchBarDelegate, 
                        delay: 0.0,
                        options: .allowUserInteraction,
                        animations: {
-                        if targetPosition == .tip {
+                        if targetState == .tip {
                             self.searchVC.tableView.alpha = 0.0
                         } else {
                             self.searchVC.tableView.alpha = 1.0
@@ -224,24 +224,16 @@ class SearchPanelViewController: UIViewController, UITableViewDataSource, UITabl
     }
 }
 
-public class SearchPanelLandscapeLayout: FloatingPanelLayout {
-    public var initialPosition: FloatingPanelPosition {
-        return .tip
+class SearchPanelLandscapeLayout: FloatingPanelLayout {
+    let position: FloatingPanelRectEdge  = .bottom
+    let initialState: FloatingPanelState = .tip
+    var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
+        return [
+            .full: FloatingPanelLayoutAnchor(absoluteInset: 16.0, referenceGuide: .safeArea, edge: .top),
+            .tip: FloatingPanelLayoutAnchor(absoluteInset: 69.0, referenceGuide: .safeArea, edge: .bottom),
+        ]
     }
-    
-    public var supportedPositions: Set<FloatingPanelPosition> {
-        return [.full, .tip]
-    }
-
-    public func insetFor(position: FloatingPanelPosition) -> CGFloat? {
-        switch position {
-        case .full: return 16.0
-        case .tip: return 69.0
-        default: return nil
-        }
-    }
-
-    public func prepareLayout(surfaceView: UIView, in view: UIView) -> [NSLayoutConstraint] {
+    func prepareLayout(surfaceView: UIView, in view: UIView) -> [NSLayoutConstraint] {
         if #available(iOS 11.0, *) {
             return [
                 surfaceView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 8.0),
@@ -253,10 +245,6 @@ public class SearchPanelLandscapeLayout: FloatingPanelLayout {
                 surfaceView.widthAnchor.constraint(equalToConstant: 291),
             ]
         }
-    }
-
-    public func backdropAlphaFor(position: FloatingPanelPosition) -> CGFloat {
-        return 0.0
     }
 }
 
