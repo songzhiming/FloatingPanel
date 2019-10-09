@@ -916,7 +916,7 @@ class ModalViewController: UIViewController, FloatingPanelControllerDelegate {
     @IBAction func updateLayout(_ sender: Any) {
         isNewlayout = !isNewlayout
         UIView.animate(withDuration: 0.5) {
-            self.fpc.updateLayout()
+            self.fpc.invalidateLayout()
         }
     }
 
@@ -1013,7 +1013,7 @@ class TabBarContentViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        fpc.updateLayout()
+        fpc.invalidateLayout()
     }
 
     override func viewWillDisappear(_ animated: Bool) {

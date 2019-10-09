@@ -20,7 +20,7 @@ class FloatingPanelTests: XCTestCase {
         fpc.track(scrollView: contentVC1.tableView)
         fpc.showForTest()
 
-        XCTAssertEqual(fpc.position, .half)
+        XCTAssertEqual(fpc.state, .half)
         XCTAssertEqual(contentVC1.tableView.showsVerticalScrollIndicator, false)
         XCTAssertEqual(contentVC1.tableView.bounces, false)
 
@@ -55,20 +55,24 @@ class FloatingPanelTests: XCTestCase {
         fpc.set(contentViewController: contentVC2)
         fpc.track(scrollView: contentVC2.tableView)
         fpc.show(animated: false, completion: nil)
-        XCTAssertEqual(fpc.position, .half)
+        XCTAssertEqual(fpc.state, .half)
         XCTAssertEqual(contentVC2.tableView.showsVerticalScrollIndicator, false)
         XCTAssertEqual(contentVC2.tableView.bounces, false)
     }
 
     func test_getBackdropAlpha_1positions() {
-        class FloatingPanelLayout1Positions: FloatingPanelTestLayout {
-            let initialPosition: FloatingPanelPosition = .full
-            let supportedPositions: Set<FloatingPanelPosition> = [.full]
+        class FloatingPanelLayout1Positions: FloatingPanelLayout {
+            let initialState: FloatingPanelState = .full
+            let position: FloatingPanelRectEdge = .bottom
+            var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
+                return [.full: FloatingPanelLayoutAnchor(absoluteInset: 20.0, referenceGuide: .superview, edge: .top)]
+            }
         }
-        let delegate = FloatingPanelTestDelegate()
-        delegate.layout = FloatingPanelLayout1Positions()
 
+        let delegate = FloatingPanelTestDelegate()
         let fpc = FloatingPanelController(delegate: delegate)
+        fpc.layout = FloatingPanelLayout1Positions()
+
         fpc.showForTest()
 
         let fullPos = fpc.surfaceOffset(for: .full)
@@ -79,14 +83,21 @@ class FloatingPanelTests: XCTestCase {
     }
 
     func test_getBackdropAlpha_2positions() {
-        class FloatingPanelLayout2Positions: FloatingPanelTestLayout {
-            let initialPosition: FloatingPanelPosition = .half
-            let supportedPositions: Set<FloatingPanelPosition> = [.half, .full]
+        class FloatingPanelLayout2Positions: FloatingPanelLayout {
+            let initialState: FloatingPanelState = .half
+            let position: FloatingPanelRectEdge = .bottom
+            var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
+                return [
+                    .full: FloatingPanelLayoutAnchor(absoluteInset: 20.0, referenceGuide: .superview, edge: .top),
+                    .half: FloatingPanelLayoutAnchor(absoluteInset: 250.0, referenceGuide: .superview, edge: .bottom),
+                ]
+            }
         }
-        let delegate = FloatingPanelTestDelegate()
-        delegate.layout = FloatingPanelLayout2Positions()
 
+        let delegate = FloatingPanelTestDelegate()
         let fpc = FloatingPanelController(delegate: delegate)
+        fpc.layout = FloatingPanelLayout2Positions()
+
         fpc.showForTest()
 
         let fullPos = fpc.surfaceOffset(for: .full)
@@ -106,13 +117,13 @@ class FloatingPanelTests: XCTestCase {
 
     func test_getBackdropAlpha_2positionsWithHidden() {
         class FloatingPanelLayout2Positions: FloatingPanelTestLayout {
-            let initialPosition: FloatingPanelPosition = .hidden
-            let supportedPositions: Set<FloatingPanelPosition> = [.hidden, .full]
+            let initialPosition: FloatingPanelState = .hidden
+            let supportedPositions: Set<FloatingPanelState> = [.hidden, .full]
         }
         let delegate = FloatingPanelTestDelegate()
-        delegate.layout = FloatingPanelLayout2Positions()
-
         let fpc = FloatingPanelController(delegate: delegate)
+        fpc.layout = FloatingPanelLayout2Positions()
+
         fpc.showForTest()
 
         let fullPos = fpc.surfaceOffset(for: .full)
@@ -150,14 +161,18 @@ class FloatingPanelTests: XCTestCase {
     }
 
     func test_targetPosition_1positions() {
-        class FloatingPanelLayout1Positions: FloatingPanelTestLayout {
-            let initialPosition: FloatingPanelPosition = .full
-            let supportedPositions: Set<FloatingPanelPosition> = [.full]
+        class FloatingPanelLayout1Positions: FloatingPanelLayout {
+            let initialState: FloatingPanelState = .full
+            let position: FloatingPanelRectEdge = .bottom
+            var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
+                return [.full: FloatingPanelLayoutAnchor(absoluteInset: 20.0, referenceGuide: .superview, edge: .top)]
+            }
         }
-        let delegate = FloatingPanelTestDelegate()
-        delegate.layout = FloatingPanelLayout1Positions()
 
+        let delegate = FloatingPanelTestDelegate()
         let fpc = FloatingPanelController(delegate: delegate)
+        fpc.layout = FloatingPanelLayout1Positions()
+
         fpc.showForTest()
 
         let fullPos = fpc.surfaceOffset(for: .full)
@@ -175,14 +190,21 @@ class FloatingPanelTests: XCTestCase {
     }
 
     func test_targetPosition_2positions() {
-        class FloatingPanelLayout2Positions: FloatingPanelTestLayout {
-            let initialPosition: FloatingPanelPosition = .half
-            let supportedPositions: Set<FloatingPanelPosition> = [.half, .full]
+        class FloatingPanelLayout2Positions: FloatingPanelLayout {
+            let initialState: FloatingPanelState = .half
+            let position: FloatingPanelRectEdge = .bottom
+            var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
+                return [
+                    .full: FloatingPanelLayoutAnchor(absoluteInset: 20.0, referenceGuide: .superview, edge: .top),
+                    .half: FloatingPanelLayoutAnchor(absoluteInset: 250.0, referenceGuide: .superview, edge: .bottom),
+                ]
+            }
         }
-        let delegate = FloatingPanelTestDelegate()
-        delegate.layout = FloatingPanelLayout2Positions()
 
+        let delegate = FloatingPanelTestDelegate()
         let fpc = FloatingPanelController(delegate: delegate)
+        fpc.layout = FloatingPanelLayout2Positions()
+
         fpc.showForTest()
 
         let fullPos = fpc.surfaceOffset(for: .full)
@@ -225,14 +247,21 @@ class FloatingPanelTests: XCTestCase {
     }
 
     func test_targetPosition_2positionsWithHidden() {
-        class FloatingPanelLayout2Positions: FloatingPanelTestLayout {
-            let initialPosition: FloatingPanelPosition = .hidden
-            let supportedPositions: Set<FloatingPanelPosition> = [.hidden, .full]
+        class FloatingPanelLayout2Positions: FloatingPanelLayout {
+            let initialState: FloatingPanelState = .hidden
+            let position: FloatingPanelRectEdge = .bottom
+            var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
+                return [
+                    .full: FloatingPanelLayoutAnchor(absoluteInset: 20.0, referenceGuide: .superview, edge: .top),
+                    .hidden: FloatingPanelLayoutAnchor.hidden,
+                ]
+            }
         }
-        let delegate = FloatingPanelTestDelegate()
-        delegate.layout = FloatingPanelLayout2Positions()
 
+        let delegate = FloatingPanelTestDelegate()
         let fpc = FloatingPanelController(delegate: delegate)
+        fpc.layout = FloatingPanelLayout2Positions()
+
         fpc.showForTest()
 
         let fullPos = fpc.surfaceOffset(for: .full)
@@ -276,8 +305,9 @@ class FloatingPanelTests: XCTestCase {
 
     func test_targetPosition_3positionsFromFull() {
         let delegate = FloatingPanelTestDelegate()
-        delegate.layout = FloatingPanelLayout3Positions()
         let fpc = FloatingPanelController(delegate: delegate)
+        fpc.layout = FloatingPanelLayout3Positions()
+
         fpc.showForTest()
 
         let fullPos = fpc.surfaceOffset(for: .full)
@@ -319,8 +349,9 @@ class FloatingPanelTests: XCTestCase {
 
     func test_targetPosition_3positionsFromFull_bottomEdge() {
         let delegate = FloatingPanelTestDelegate()
-        delegate.layout = FloatingPanelLayout3PositionsBottomEdge()
         let fpc = FloatingPanelController(delegate: delegate)
+        fpc.layout = FloatingPanelLayout3PositionsBottomEdge()
+
         fpc.showForTest()
 
         let fullPos = fpc.surfaceOffset(for: .full)
@@ -362,8 +393,9 @@ class FloatingPanelTests: XCTestCase {
 
     func test_targetPosition_3positionsFromHalf() {
         let delegate = FloatingPanelTestDelegate()
-        delegate.layout = FloatingPanelLayout3Positions()
         let fpc = FloatingPanelController(delegate: delegate)
+        fpc.layout = FloatingPanelLayout3Positions()
+
         fpc.showForTest()
 
         let fullPos = fpc.surfaceOffset(for: .full)
@@ -403,8 +435,9 @@ class FloatingPanelTests: XCTestCase {
 
     func test_targetPosition_3positionsFromHalf_bottomEdge() {
         let delegate = FloatingPanelTestDelegate()
-            delegate.layout = FloatingPanelLayout3PositionsBottomEdge()
-            let fpc = FloatingPanelController(delegate: delegate)
+        let fpc = FloatingPanelController(delegate: delegate)
+        fpc.layout = FloatingPanelLayout3PositionsBottomEdge()
+
             fpc.showForTest()
 
             let fullPos = fpc.surfaceOffset(for: .full)
@@ -444,8 +477,9 @@ class FloatingPanelTests: XCTestCase {
 
     func test_targetPosition_3positionsFromTip() {
         let delegate = FloatingPanelTestDelegate()
-        delegate.layout = FloatingPanelLayout3Positions()
         let fpc = FloatingPanelController(delegate: delegate)
+        fpc.layout = FloatingPanelLayout3Positions()
+
         fpc.showForTest()
 
         let fullPos = fpc.surfaceOffset(for: .full)
@@ -486,9 +520,10 @@ class FloatingPanelTests: XCTestCase {
 
     func test_targetPosition_3positionsFromTip_bottomEdge() {
         let delegate = FloatingPanelTestDelegate()
-            delegate.layout = FloatingPanelLayout3PositionsBottomEdge()
-            let fpc = FloatingPanelController(delegate: delegate)
-            fpc.showForTest()
+        let fpc = FloatingPanelController(delegate: delegate)
+        fpc.layout = FloatingPanelLayout3PositionsBottomEdge()
+
+        fpc.showForTest()
 
             let fullPos = fpc.surfaceOffset(for: .full)
             let halfPos = fpc.surfaceOffset(for: .half)
@@ -528,10 +563,10 @@ class FloatingPanelTests: XCTestCase {
 
     func test_targetPosition_3positionsAllProjection() {
         let delegate = FloatingPanelTestDelegate()
-        delegate.layout = FloatingPanelLayout3Positions()
-        delegate.behavior = FloatingPanelProjectionalBehavior()
-
         let fpc = FloatingPanelController(delegate: delegate)
+        fpc.behavior = FloatingPanelProjectionalBehavior()
+        fpc.layout = FloatingPanelLayout3Positions()
+
         fpc.showForTest()
 
         let fullPos = fpc.surfaceOffset(for: .full)
@@ -575,16 +610,23 @@ class FloatingPanelTests: XCTestCase {
     }
 
     func test_targetPosition_3positionsWithHidden() {
-        class FloatingPanelLayout3PositionsWithHidden: FloatingPanelTestLayout {
-            let initialPosition: FloatingPanelPosition = .hidden
-            let supportedPositions: Set<FloatingPanelPosition> = [.hidden, .half, .full]
+        class FloatingPanelLayout3PositionsWithHidden: FloatingPanelLayout {
+            let initialState: FloatingPanelState = .hidden
+            let position: FloatingPanelRectEdge = .bottom
+            var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
+                return [
+                    .full: FloatingPanelLayoutAnchor(absoluteInset: 20.0, referenceGuide: .superview, edge: .top),
+                    .half: FloatingPanelLayoutAnchor(absoluteInset: 250.0, referenceGuide: .superview, edge: .bottom),
+                    .hidden: FloatingPanelLayoutAnchor.hidden,
+                ]
+            }
         }
         let delegate = FloatingPanelTestDelegate()
-        delegate.layout = FloatingPanelLayout3PositionsWithHidden()
-
         let fpc = FloatingPanelController(delegate: delegate)
+        fpc.layout = FloatingPanelLayout3PositionsWithHidden()
+
         fpc.showForTest()
-        XCTAssertEqual(fpc.position, .hidden)
+        XCTAssertEqual(fpc.state, .hidden)
 
         fpc.move(to: .full, animated: false)
         assertTargetPosition(fpc.floatingPanel, with: [
@@ -600,18 +642,25 @@ class FloatingPanelTests: XCTestCase {
     }
 
     func test_targetPosition_3positionsWithHiddenWithoutFull() {
-        class FloatingPanelLayout3Positions: FloatingPanelTestLayout {
-            let initialPosition: FloatingPanelPosition = .hidden
-            let supportedPositions: Set<FloatingPanelPosition> = [.hidden, .tip, .half]
+        class FloatingPanelLayout3Positions: FloatingPanelLayout {
+            let initialState: FloatingPanelState = .hidden
+            let position: FloatingPanelRectEdge = .bottom
+            var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
+                return [
+                    .half: FloatingPanelLayoutAnchor(absoluteInset: 250.0, referenceGuide: .superview, edge: .bottom),
+                    .tip: FloatingPanelLayoutAnchor(absoluteInset: 60.0, referenceGuide: .superview, edge: .bottom),
+                    .hidden: FloatingPanelLayoutAnchor.hidden,
+                ]
+            }
         }
 
         let delegate = FloatingPanelTestDelegate()
-        delegate.layout = FloatingPanelLayout3Positions()
-        delegate.behavior = FloatingPanelProjectionalBehavior()
-
         let fpc = FloatingPanelController(delegate: delegate)
+        fpc.layout = FloatingPanelLayout3Positions()
+
         fpc.showForTest()
-        XCTAssertEqual(fpc.position, .hidden)
+        fpc.behavior = FloatingPanelProjectionalBehavior()
+        XCTAssertEqual(fpc.state, .hidden)
 
         let halfPos = fpc.surfaceOffset(for: .half)
         let tipPos = fpc.surfaceOffset(for: .tip)
@@ -644,17 +693,18 @@ class FloatingPanelTests: XCTestCase {
 }
 
 private class FloatingPanelLayout3Positions: FloatingPanelTestLayout {
-    let initialPosition: FloatingPanelPosition = .tip
-    let supportedPositions: Set<FloatingPanelPosition> = [.tip, .half, .full]
+    override var initialState: FloatingPanelState {
+        return .tip
+    }
 }
 
-private class FloatingPanelLayout3PositionsBottomEdge: FloatingPanelTestLayout {
-    let initialPosition: FloatingPanelPosition = .tip
-    let interactiveEdge: FloatingPanelRectEdge = .bottom
-    let supportedPositions: Set<FloatingPanelPosition> = [.tip, .half, .full]
+private class FloatingPanelLayout3PositionsBottomEdge: FloatingPanelTop2BottomTestLayout {
+    override var initialState: FloatingPanelState {
+        return .tip
+    }
 }
 
-private typealias TestParameter = (UInt, CGFloat,CGPoint, FloatingPanelPosition)
+private typealias TestParameter = (UInt, CGFloat,CGPoint, FloatingPanelState)
 private func assertTargetPosition(_ floatingPanel: FloatingPanel, with params: [TestParameter]) {
     params.forEach { (line, pos, velocity, result) in
         floatingPanel.surfaceView.frame.origin.y = pos
@@ -663,7 +713,7 @@ private func assertTargetPosition(_ floatingPanel: FloatingPanel, with params: [
 }
 
 private class FloatingPanelProjectionalBehavior: FloatingPanelBehavior {
-    func shouldProjectMomentum(_ fpc: FloatingPanelController, for proposedTargetPosition: FloatingPanelPosition) -> Bool {
+    func shouldProjectMomentum(_ fpc: FloatingPanelController, for proposedTargetPosition: FloatingPanelState) -> Bool {
         return true
     }
 }

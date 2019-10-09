@@ -19,49 +19,46 @@ extension FloatingPanelController {
 }
 
 class FloatingPanelTestDelegate: FloatingPanelControllerDelegate {
-    var layout: FloatingPanelLayout?
-    var behavior: FloatingPanelBehavior?
-    var position: FloatingPanelPosition = .hidden
-    func floatingPanel(_ vc: FloatingPanelController, layoutFor newCollection: UITraitCollection) -> FloatingPanelLayout? {
-        return layout
-    }
-    func floatingPanel(_ vc: FloatingPanelController, behaviorFor newCollection: UITraitCollection) -> FloatingPanelBehavior? {
-        return behavior
-    }
+    var position: FloatingPanelState = .hidden
     func floatingPanelDidChangePosition(_ vc: FloatingPanelController) {
-        position = vc.position
+        position = vc.state
     }
 }
 
-protocol FloatingPanelTestLayout: FloatingPanelLayout {}
-extension FloatingPanelTestLayout {
-    var positionReference: FloatingPanelLayoutReference {
-        return .fromSuperview
+class FloatingPanelTestLayout: FloatingPanelLayout {
+    var initialState: FloatingPanelState {
+        return .half
     }
-    func insetFor(position: FloatingPanelPosition) -> CGFloat? {
-        switch position {
-        case .full: return 20.0
-        case .half: return 250.0
-        case .tip: return 60.0
-        default: return nil
-        }
-    }
-}
-
-protocol FloatingPanelTop2BottomTestLayout: FloatingPanelLayout {}
-extension FloatingPanelTop2BottomTestLayout {
-    var interactiveEdge: FloatingPanelRectEdge {
+    var position: FloatingPanelRectEdge {
         return .bottom
     }
-    var positionReference: FloatingPanelLayoutReference {
-        return .fromSuperview
+    var referenceGuide: FloatingPanelLayoutReferenceGuide {
+        return .superview
     }
-    func insetFor(position: FloatingPanelPosition) -> CGFloat? {
-        switch position {
-        case .full: return 0.0
-        case .half: return 250.0
-        case .tip: return 60.0
-        default: return nil
-        }
+    var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
+        return [
+            .full: FloatingPanelLayoutAnchor(absoluteInset: 20.0, referenceGuide: referenceGuide, edge: .top),
+            .half: FloatingPanelLayoutAnchor(absoluteInset: 250.0, referenceGuide: referenceGuide, edge: .bottom),
+            .tip: FloatingPanelLayoutAnchor(absoluteInset: 60.0, referenceGuide: referenceGuide, edge: .bottom),
+        ]
+    }
+}
+
+class FloatingPanelTop2BottomTestLayout: FloatingPanelLayout {
+    var initialState: FloatingPanelState {
+        return .half
+    }
+    var position: FloatingPanelRectEdge {
+        return .top
+    }
+    var referenceGuide: FloatingPanelLayoutReferenceGuide {
+        return .superview
+    }
+    var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
+        return [
+            .full: FloatingPanelLayoutAnchor(absoluteInset: 0.0, referenceGuide: referenceGuide, edge: .bottom),
+            .half: FloatingPanelLayoutAnchor(absoluteInset: 250.0, referenceGuide: referenceGuide, edge: .top),
+            .tip: FloatingPanelLayoutAnchor(absoluteInset: 60.0, referenceGuide: referenceGuide, edge: .top),
+        ]
     }
 }

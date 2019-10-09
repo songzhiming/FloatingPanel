@@ -56,7 +56,7 @@ class FloatingPanelSurfaceViewTests: XCTestCase {
             surface.layoutIfNeeded()
 
             let contentView = UIView()
-            surface.add(contentView: contentView)
+            surface.set(contentView: contentView)
 
             let height = surface.bounds.height * 2
             surface.bottomOverflow = height
@@ -71,7 +71,7 @@ class FloatingPanelSurfaceViewTests: XCTestCase {
             surface.layoutIfNeeded()
 
             let contentView = UIView()
-            surface.add(contentView: contentView)
+            surface.set(contentView: contentView)
 
             let height = surface.bounds.height * 2
             surface.bottomOverflow = height
@@ -134,7 +134,7 @@ class FloatingPanelSurfaceViewTests: XCTestCase {
     func test_surfaceView_contentInsets() {
         let surface = FloatingPanelSurfaceView(frame: CGRect(x: 0.0, y: 0.0, width: 320.0, height: 480.0))
         let contentView = UIView()
-        surface.add(contentView: contentView)
+        surface.set(contentView: contentView)
         surface.layoutIfNeeded()
         XCTAssertEqual(surface.contentView.frame, surface.bounds)
         surface.contentInsets = UIEdgeInsets(top: 16.0, left: 16.0, bottom: 16.0, right: 16.0)
@@ -146,7 +146,7 @@ class FloatingPanelSurfaceViewTests: XCTestCase {
     func test_surfaceView_containerMargins_and_contentInsets() {
         let surface = FloatingPanelSurfaceView(frame: CGRect(x: 0.0, y: 0.0, width: 320.0, height: 480.0))
         let contentView = UIView()
-        surface.add(contentView: contentView)
+        surface.set(contentView: contentView)
         surface.layoutIfNeeded()
         XCTAssertEqual(surface.contentView.frame, surface.bounds)
         surface.containerMargins = UIEdgeInsets(top: 16.0, left: 16.0, bottom: 16.0, right: 16.0)

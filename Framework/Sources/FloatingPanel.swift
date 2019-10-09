@@ -14,8 +14,8 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
 
     let surfaceView: FloatingPanelSurfaceView
     let backdropView: FloatingPanelBackdropView
-    var layoutAdapter: FloatingPanelLayoutAdapter
-    var behavior: FloatingPanelBehavior
+    let layoutAdapter: FloatingPanelLayoutAdapter
+    let behaviorAdapter: FloatingPanelBehaviorAdapter
 
     weak var scrollView: UIScrollView? {
         didSet {
@@ -24,10 +24,10 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         }
     }
 
-    private(set) var state: FloatingPanelPosition = .hidden {
+    private(set) var state: FloatingPanelState = .hidden {
         didSet {
             if let vc = viewcontroller {
-                vc.delegate?.floatingPanelDidChangePosition(vc)
+                vc.delegate?.floatingPanelDidChangePosition?(vc)
             }
         }
     }
@@ -70,10 +70,11 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         backdropView.backgroundColor = .black
         backdropView.alpha = 0.0
 
-        self.layoutAdapter = FloatingPanelLayoutAdapter(surfaceView: surfaceView,
+        self.layoutAdapter = FloatingPanelLayoutAdapter(vc: vc,
+                                                        surfaceView: surfaceView,
                                                         backdropView: backdropView,
                                                         layout: layout)
-        self.behavior = behavior
+        self.behaviorAdapter = FloatingPanelBehaviorAdapter(vc: vc, behavior: behavior)
 
         panGestureRecognizer = FloatingPanelPanGestureRecognizer()
 
@@ -96,11 +97,11 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         backdropView.addGestureRecognizer(tapGesture)
     }
 
-    func move(to: FloatingPanelPosition, animated: Bool, completion: (() -> Void)? = nil) {
+    func move(to: FloatingPanelState, animated: Bool, completion: (() -> Void)? = nil) {
         move(from: state, to: to, animated: animated, completion: completion)
     }
 
-    private func move(from: FloatingPanelPosition, to: FloatingPanelPosition, animated: Bool, completion: (() -> Void)? = nil) {
+    private func move(from: FloatingPanelState, to: FloatingPanelState, animated: Bool, completion: (() -> Void)? = nil) {
         assert(layoutAdapter.isValid(to), "Can't move to '\(to)' position because it's not valid in the layout")
         guard let vc = viewcontroller else {
             completion?()
@@ -115,11 +116,11 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
             let animator: UIViewPropertyAnimator
             switch (from, to) {
             case (.hidden, let to):
-                animator = behavior.addAnimator(vc, to: to)
+                animator = behaviorAdapter.behavior.addAnimator?(vc, to: to) ?? FloatingPanelDefaultBehavior().addAnimator(vc, to: to)
             case (let from, .hidden):
-                animator = behavior.removeAnimator(vc, from: from)
+                animator = behaviorAdapter.behavior.removeAnimator?(vc, from: from) ?? FloatingPanelDefaultBehavior().removeAnimator(vc, from: from)
             case (let from, let to):
-                animator = behavior.moveAnimator(vc, from: from, to: to)
+                animator = behaviorAdapter.behavior.moveAnimator?(vc, from: from, to: to) ?? FloatingPanelDefaultBehavior().moveAnimator(vc, from: from, to: to)
             }
 
             animator.addAnimations { [weak self] in
@@ -154,7 +155,7 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
 
     // MARK: - Layout update
 
-    private func updateLayout(to target: FloatingPanelPosition) {
+    private func updateLayout(to target: FloatingPanelState) {
         self.layoutAdapter.activateFixedLayout()
         self.layoutAdapter.activateInteractiveLayout(of: target)
     }
@@ -171,8 +172,8 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         let nextY = layoutAdapter.positionY(for: next)
         let preY = layoutAdapter.positionY(for: pre)
 
-        let nextAlpha = layoutAdapter.layout.backdropAlphaFor(position: next)
-        let preAlpha = layoutAdapter.layout.backdropAlphaFor(position: pre)
+        let nextAlpha = layoutAdapter.backdropAlpha(for: next)
+        let preAlpha = layoutAdapter.backdropAlpha(for: pre)
 
         if preY == nextY {
             return preAlpha
@@ -190,7 +191,7 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         /* log.debug("shouldRecognizeSimultaneouslyWith", otherGestureRecognizer) */
 
         if let vc = viewcontroller,
-            vc.delegate?.floatingPanel(vc, shouldRecognizeSimultaneouslyWith: otherGestureRecognizer) ?? false {
+            vc.delegate?.floatingPanel?(vc, shouldRecognizeSimultaneouslyWith: otherGestureRecognizer) ?? false {
             return true
         }
 
@@ -237,7 +238,7 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         }
 
         if let vc = viewcontroller,
-            vc.delegate?.floatingPanel(vc, shouldRecognizeSimultaneouslyWith: otherGestureRecognizer) ?? false {
+            vc.delegate?.floatingPanel?(vc, shouldRecognizeSimultaneouslyWith: otherGestureRecognizer) ?? false {
             return false
         }
 
@@ -264,7 +265,7 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
     @objc func handleBackdrop(tapGesture: UITapGestureRecognizer) {
         viewcontroller?.dismiss(animated: true) { [weak self] in
             guard let vc = self?.viewcontroller else { return }
-            vc.delegate?.floatingPanelDidEndRemove(vc)
+            vc.delegate?.floatingPanelDidEndRemove?(vc)
         }
     }
 
@@ -368,7 +369,7 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
                 "translation =  \(translation.y), location = \(location.y), velocity = \(velocity.y)")
 
             if interactionInProgress == false, isDecelerating == false,
-                let vc = viewcontroller, vc.delegate?.floatingPanelShouldBeginDragging(vc) == false {
+                let vc = viewcontroller, vc.delegate?.floatingPanelShouldBeginDragging?(vc) == false {
                 return
             }
 
@@ -412,7 +413,7 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
                     let dy = translation.y - .leastNonzeroMagnitude
                     layoutAdapter.updateInteractiveEdgeConstraint(diff: dy,
                                                                   allowsTopBuffer: true,
-                                                                  with: behavior)
+                                                                  with: behaviorAdapter.behavior)
                 }
                 panningEnd(with: translation, velocity: velocity)
             default:
@@ -512,7 +513,7 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
 
         layoutAdapter.updateInteractiveEdgeConstraint(diff: dy,
                                                       allowsTopBuffer: allowsTopBuffer(preY: preY, nextY: nextY, dy: dy),
-                                                      with: behavior)
+                                                      with: behaviorAdapter.behavior)
 
         let currentY = surfaceEdgeY
         backdropView.alpha = getBackdropAlpha(at: currentY, with: translation)
@@ -522,7 +523,7 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         guard didMove else { return }
 
         if let vc = viewcontroller {
-            vc.delegate?.floatingPanelDidMove(vc)
+            vc.delegate?.floatingPanelDidMove?(vc)
         }
     }
 
@@ -546,9 +547,9 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         let fixedAnchor: NSLayoutYAxisAnchor? = {
             switch layoutAdapter.layout.interactiveEdge {
             case .top:
-                return vc.contentViewController?.layoutGuide.bottomAnchor
+                return vc.contentViewController?.fp_safeAreaLayoutGuide.bottomAnchor
             case .bottom:
-                return vc.contentViewController?.layoutGuide.topAnchor
+                return vc.contentViewController?.fp_safeAreaLayoutGuide.topAnchor
             }
         }()
         // Must include position Y of the most state
@@ -614,10 +615,10 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         endInteraction(for: targetPosition)
 
         if isRemovalInteractionEnabled, layoutAdapter.edgeLeastState == state {
-            let velocityVector = (distance != 0) ? CGVector(dx: 0, dy: min(velocity.y/distance, behavior.removalVelocity)) : .zero
+            let velocityVector = (distance != 0) ? CGVector(dx: 0, dy: min(velocity.y/distance, behaviorAdapter.behavior.removalVelocity ?? FloatingPanelDefaultBehavior().removalVelocity)) : .zero
             // `velocityVector` will be replaced by just a velocity(not vector) when FloatingPanelRemovalInteraction will be added.
             if shouldStartRemovalAnimation(with: velocityVector), let vc = viewcontroller {
-                vc.delegate?.floatingPanelDidEndDraggingToRemove(vc, withVelocity: velocity)
+                vc.delegate?.floatingPanelDidEndDraggingToRemove?(vc, withVelocity: velocity)
                 let animationVector = CGVector(dx: abs(velocityVector.dx), dy: abs(velocityVector.dy))
                 startRemovalAnimation(vc, with: animationVector) { [weak self] in
                     self?.finishRemovalAnimation()
@@ -627,7 +628,7 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         }
 
         if let vc = viewcontroller {
-            vc.delegate?.floatingPanelDidEndDragging(vc, withVelocity: velocity, targetPosition: targetPosition)
+            vc.delegate?.floatingPanelDidEndDragging?(vc, withVelocity: velocity, targetState: targetPosition)
         }
 
         if scrollView != nil, !stopScrollDeceleration,
@@ -658,8 +659,8 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         let posY = layoutAdapter.positionY(for: state)
         let currentY = surfaceEdgeY
         let hiddenY = layoutAdapter.positionY(for: .hidden)
-        let vth = behavior.removalVelocity
-        let pth = max(min(behavior.removalProgress, 1.0), 0.0)
+        let vth = behaviorAdapter.behavior.removalVelocity ?? FloatingPanelDefaultBehavior().removalProgress
+        let pth = max(min(behaviorAdapter.behavior.removalProgress ?? FloatingPanelDefaultBehavior().removalVelocity, 1.0), 0.0)
 
         let num = (currentY - posY)
         let den = (hiddenY - posY)
@@ -671,7 +672,7 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
     }
 
     private func startRemovalAnimation(_ vc: FloatingPanelController, with velocityVector: CGVector, completion: (() -> Void)?) {
-        let animator = behavior.removalInteractionAnimator(vc, with: velocityVector)
+        let animator = behaviorAdapter.behavior.removalInteractionAnimator?(vc, with: velocityVector) ?? FloatingPanelDefaultBehavior().removalInteractionAnimator(vc, with: velocityVector)
 
         animator.addAnimations { [weak self] in
             self?.state = .hidden
@@ -688,7 +689,7 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
     private func finishRemovalAnimation() {
         viewcontroller?.dismiss(animated: false) { [weak self] in
             guard let vc = self?.viewcontroller else { return }
-            vc.delegate?.floatingPanelDidEndRemove(vc)
+            vc.delegate?.floatingPanelDidEndRemove?(vc)
         }
     }
 
@@ -714,7 +715,7 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         initialTranslationY = translation.y
 
         if let vc = viewcontroller {
-            vc.delegate?.floatingPanelWillBeginDragging(vc)
+            vc.delegate?.floatingPanelWillBeginDragging?(vc)
         }
 
         layoutAdapter.startInteraction(at: state, offset: offset)
@@ -724,7 +725,7 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         lockScrollView()
     }
 
-    private func endInteraction(for targetPosition: FloatingPanelPosition) {
+    private func endInteraction(for targetPosition: FloatingPanelState) {
         log.debug("endInteraction to \(targetPosition)")
 
         if let scrollView = scrollView {
@@ -747,16 +748,16 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         panGestureRecognizer.isEnabled = true
     }
 
-    private func startAnimation(to targetPosition: FloatingPanelPosition, at distance: CGFloat, with velocity: CGPoint) {
+    private func startAnimation(to targetPosition: FloatingPanelState, at distance: CGFloat, with velocity: CGPoint) {
         log.debug("startAnimation to \(targetPosition) -- distance = \(distance), velocity = \(velocity.y)")
         guard let vc = viewcontroller else { return }
 
         isDecelerating = true
 
-        vc.delegate?.floatingPanelWillBeginDecelerating(vc)
+        vc.delegate?.floatingPanelWillBeginDecelerating?(vc)
 
         let velocityVector = (distance != 0) ? CGVector(dx: 0, dy: abs(velocity.y)/distance) : .zero
-        let animator = behavior.interactionAnimator(vc, to: targetPosition, with: velocityVector)
+        let animator = behaviorAdapter.behavior.interactionAnimator?(vc, to: targetPosition, with: velocityVector) ?? FloatingPanelDefaultBehavior().interactionAnimator(vc, to: targetPosition, with: velocityVector)
         animator.addAnimations { [weak self] in
             guard let `self` = self, let vc = self.viewcontroller else { return }
             self.state = targetPosition
@@ -785,14 +786,14 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         animator.startAnimation()
     }
 
-    private func finishAnimation(at targetPosition: FloatingPanelPosition) {
+    private func finishAnimation(at targetPosition: FloatingPanelState) {
         log.debug("finishAnimation to \(targetPosition)")
 
         self.isDecelerating = false
         self.animator = nil
 
         if let vc = viewcontroller {
-            vc.delegate?.floatingPanelDidEndDecelerating(vc)
+            vc.delegate?.floatingPanelDidEndDecelerating?(vc)
         }
 
         if let scrollView = scrollView {
@@ -807,7 +808,7 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         }
     }
 
-    private func distance(to targetPosition: FloatingPanelPosition) -> CGFloat {
+    private func distance(to targetPosition: FloatingPanelState) -> CGFloat {
         let currentY = surfaceEdgeY
         let targetY = layoutAdapter.positionY(for: targetPosition)
         return CGFloat(abs(currentY - targetY))
@@ -819,7 +820,7 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         return (initialVelocity / 1000.0) * decelerationRate / (1.0 - decelerationRate)
     }
 
-    func targetPosition(from currentY: CGFloat, with velocity: CGPoint) -> (FloatingPanelPosition) {
+    func targetPosition(from currentY: CGFloat, with velocity: CGPoint) -> (FloatingPanelState) {
         guard let vc = viewcontroller else { return state }
         let sortedPositions = layoutAdapter.sortedDirectionalPositions
 
@@ -828,7 +829,7 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         }
 
         // Projection
-        let decelerationRate = behavior.momentumProjectionRate(vc)
+        let decelerationRate = behaviorAdapter.behavior.momentumProjectionRate?(vc) ?? FloatingPanelDefaultBehavior().momentumProjectionRate(vc)
         let baseY = abs(layoutAdapter.positionY(for: layoutAdapter.bottomMostState) - layoutAdapter.positionY(for: layoutAdapter.topMostState))
         let vecY = velocity.y / baseY
         var pY = project(initialVelocity: vecY, decelerationRate: decelerationRate) * baseY + currentY
@@ -837,13 +838,13 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
 
         let segment = layoutAdapter.segument(at: pY, forward: forwardY)
 
-        var fromPos: FloatingPanelPosition
-        var toPos: FloatingPanelPosition
+        var fromPos: FloatingPanelState
+        var toPos: FloatingPanelState
 
         let (lowerPos, upperPos) = (segment.lower ?? sortedPositions.first!, segment.upper ?? sortedPositions.last!)
         (fromPos, toPos) = forwardY ? (lowerPos, upperPos) : (upperPos, lowerPos)
 
-        if behavior.shouldProjectMomentum(vc, for: toPos) == false {
+        if behaviorAdapter.behavior.shouldProjectMomentum?(vc, for: toPos) ?? FloatingPanelDefaultBehavior().shouldProjectMomentum(vc, for: toPos) == false {
             let segment = layoutAdapter.segument(at: currentY, forward: forwardY)
             var (lowerPos, upperPos) = (segment.lower ?? sortedPositions.first!, segment.upper ?? sortedPositions.last!)
             // Equate the segment out of {top,bottom} most state to the {top,bottom} most segment
@@ -851,7 +852,7 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
                 if forwardY {
                     upperPos = lowerPos.next(in: sortedPositions)
                 } else {
-                    lowerPos = upperPos.pre(in: sortedPositions)
+                    lowerPos = lowerPos.pre(in: sortedPositions)
                 }
             }
             (fromPos, toPos) = forwardY ? (lowerPos, upperPos) : (upperPos, lowerPos)
@@ -865,7 +866,7 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         }
 
         // Redirection
-        let redirectionalProgress = max(min(behavior.redirectionalProgress(vc, from: fromPos, to: toPos), 1.0), 0.0)
+        let redirectionalProgress = max(min(behaviorAdapter.behavior.redirectionalProgress?(vc, from: fromPos, to: toPos) ?? FloatingPanelDefaultBehavior().redirectionalProgress(vc,from: fromPos, to: toPos), 1.0), 0.0)
         let progress = abs(pY - layoutAdapter.positionY(for: fromPos)) / abs(layoutAdapter.positionY(for: fromPos) - layoutAdapter.positionY(for: toPos))
         return progress > redirectionalProgress ? toPos : fromPos
     }

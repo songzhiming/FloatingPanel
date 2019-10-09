@@ -3,7 +3,13 @@
 //  Copyright © 2018 Shin Yamamoto. All rights reserved.
 //
 
+#ifndef FloatingPanel_h
+#define FloatingPanel_h
+
 #import <UIKit/UIKit.h>
+#import <FloatingPanel/FloatingPanelState.h>
 
 FOUNDATION_EXPORT double FloatingPanelVersionNumber;
 FOUNDATION_EXPORT const unsigned char FloatingPanelVersionString[];
+
+#endif /* FloatingPanel_h */

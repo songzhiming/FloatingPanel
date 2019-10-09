@@ -218,6 +218,13 @@ public class FloatingPanelSurfaceView: UIView {
         updateBorder()
     }
 
+    public override var intrinsicContentSize: CGSize {
+        let fittingSize = UIView.layoutFittingCompressedSize
+        let contentSize = contentView?.systemLayoutSizeFitting(fittingSize) ?? .zero
+        return CGSize(width: containerMargins.horizontalInset + contentInsets.horizontalInset + contentSize.width,
+                      height: containerMargins.verticalInset + contentInsets.verticalInset + contentSize.height)
+    }
+
     private func updateShadow() {
         if shadowHidden == false {
             if #available(iOS 11, *) {
@@ -260,7 +267,7 @@ public class FloatingPanelSurfaceView: UIView {
         containerView.layer.borderWidth = borderWidth
     }
 
-    func add(contentView: UIView) {
+    func set(contentView: UIView) {
         containerView.addSubview(contentView)
         self.contentView = contentView
         /* contentView.frame = bounds */ // MUST NOT: Because the top safe area inset of a content VC will be incorrect.
