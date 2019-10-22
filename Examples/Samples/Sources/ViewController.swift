@@ -185,7 +185,7 @@ class SampleListViewController: UIViewController {
 
     @objc
     func handleSurface(tapGesture: UITapGestureRecognizer) {
-        switch mainPanelVC.position {
+        switch mainPanelVC.state {
         case .full:
             mainPanelVC.move(to: .half, animated: true)
         default:
@@ -429,17 +429,14 @@ extension SampleListViewController: FloatingPanelControllerDelegate {
  purposely to check if the library prints an appropriate warning.
  */
 extension SampleListViewController: FloatingPanelLayout {
-    var initialPosition: FloatingPanelPosition {
-        return .half
-    }
-
-    func insetFor(position: FloatingPanelPosition) -> CGFloat? {
-        switch position {
-        case .full: return UIScreen.main.bounds.height == 667.0 ? 18.0 : 16.0
-        case .half: return 262.0
-        case .tip: return 69.0
-        case .hidden: return nil
-        }
+    var position: FloatingPanelRectEdge { .bottom }
+    var initialState: FloatingPanelState { .half }
+    var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
+        return [
+            .full: FloatingPanelLayoutAnchor(absoluteInset: UIScreen.main.bounds.height == 667.0 ? 18.0 : 16.0, referenceGuide: .safeArea, edge: .top),
+            .half: FloatingPanelLayoutAnchor(absoluteInset: 262.0, referenceGuide: .safeArea, edge: .bottom),
+            .tip: FloatingPanelLayoutAnchor(absoluteInset: 69.0, referenceGuide: .safeArea, edge: .bottom)
+        ]
     }
 }
 
@@ -469,96 +466,104 @@ extension SampleListViewController: UIPageViewControllerDelegate {
 }
 
 class BottomEdgeInteractionLayout: FloatingPanelLayout {
-    var interactiveEdge: FloatingPanelRectEdge = .bottom
-    var initialPosition: FloatingPanelPosition = .full
+    let position: FloatingPanelRectEdge = .top
+    let initialState: FloatingPanelState = .full
 
-    func insetFor(position: FloatingPanelPosition) -> CGFloat? {
-        switch position {
-        case .tip:
-            return 44.0
-        case .half:
-            return 216.0
-        case .full:
-            return 88.0
-        default:
-            return nil
+    var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
+        return [
+            .full: FloatingPanelLayoutAnchor(absoluteInset: 88.0, referenceGuide: .safeArea, edge: .bottom),
+            .half: FloatingPanelLayoutAnchor(absoluteInset: 216.0, referenceGuide: .safeArea, edge: .top),
+            .tip: FloatingPanelLayoutAnchor(absoluteInset: 44.0, referenceGuide: .safeArea, edge: .top)
+        ]
+    }
+    func interactionBuffer(for edge: FloatingPanelRectEdge) -> CGFloat {
+        switch edge {
+        case .top: return 200.0
+        case .bottom: return 261.0 - 22.0
         }
     }
 }
 
-class IntrinsicPanelLayout: FloatingPanelIntrinsicLayout { }
-
-class NoInteractionBufferPanelLayout: FloatingPanelLayout {
-    var initialPosition: FloatingPanelPosition {
-        return .full
+class IntrinsicPanelLayout: FloatingPanelDefaultLayout {
+    override var initialState: FloatingPanelState { .full }
+    override var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
+        return [
+            .full: FloatingPanelIntrinsicLayoutAnchor(absoluteVisibleOffset: 0.0, referenceGuide: .safeArea)
+        ]
     }
+}
 
-    func insetFor(position: FloatingPanelPosition) -> CGFloat? {
-        switch position {
-        case .full: return 0
-        case .half: return 216
-        case .tip: return 60
-        case .hidden: return nil
-        }
-    }
-
-    var topInteractionBuffer: CGFloat {
-        return 0.0
-    }
-
-    var bottomInteractionBuffer: CGFloat {
+class NoInteractionBufferPanelLayout: FloatingPanelDefaultLayout {
+    override var initialState: FloatingPanelState { .full }
+    override func interactionBuffer(for edge: FloatingPanelRectEdge) -> CGFloat {
         return 0.0
     }
 }
 
-class RemovablePanelLayout: FloatingPanelIntrinsicLayout {
-    var supportedPositions: Set<FloatingPanelPosition> {
-        return [.full, .half]
-    }
-    var initialPosition: FloatingPanelPosition {
-        return .half
-    }
-    var topInteractionBuffer: CGFloat {
-        return 200.0
-    }
-    var bottomInteractionBuffer: CGFloat {
-        return 261.0 - 22.0
+class RemovablePanelLayout: FloatingPanelLayout {
+    let position: FloatingPanelRectEdge = .bottom
+    let initialState: FloatingPanelState = .half
+
+    var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
+        return [
+            .full: FloatingPanelIntrinsicLayoutAnchor(absoluteVisibleOffset: 0.0, referenceGuide: .safeArea),
+            .half: FloatingPanelLayoutAnchor(absoluteInset: 130.0, referenceGuide: .safeArea, edge: .bottom)
+        ]
     }
 
-    func insetFor(position: FloatingPanelPosition) -> CGFloat? {
-        switch position {
-        case .half: return 130.0
-        default: return nil
+    func interactionBuffer(for edge: FloatingPanelRectEdge) -> CGFloat {
+        switch edge {
+        case .top: return 200.0
+        case .bottom: return 261.0 - 22.0
         }
     }
-    func backdropAlphaFor(position: FloatingPanelPosition) -> CGFloat {
+
+    func backdropAlphaFor(position: FloatingPanelState) -> CGFloat {
         return 0.3
     }
 }
 
-class RemovablePanelLandscapeLayout: FloatingPanelIntrinsicLayout {
-    var supportedPositions: Set<FloatingPanelPosition> {
-        return [.full, .half]
+class RemovablePanelLandscapeLayout: FloatingPanelLayout {
+    let position: FloatingPanelRectEdge = .bottom
+    let initialState: FloatingPanelState = .full
+
+    var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
+        return [
+            .full: FloatingPanelIntrinsicLayoutAnchor(absoluteVisibleOffset: 0.0, referenceGuide: .safeArea),
+            .half: FloatingPanelLayoutAnchor(absoluteInset: 216.0, referenceGuide: .safeArea, edge: .bottom)
+        ]
     }
-    var bottomInteractionBuffer: CGFloat {
-        return 261.0 - 22.0
-    }
-    func insetFor(position: FloatingPanelPosition) -> CGFloat? {
-        switch position {
-        case .half: return 261.0
-        default: return nil
+
+    func interactionBuffer(for edge: FloatingPanelRectEdge) -> CGFloat {
+        switch edge {
+        case .top: return 6.0
+        case .bottom: return 261.0 - 22.0
         }
     }
-    func backdropAlphaFor(position: FloatingPanelPosition) -> CGFloat {
+
+    func backdropAlphaFor(position: FloatingPanelState) -> CGFloat {
         return 0.3
     }
 }
 
-class ModalPanelLayout: FloatingPanelIntrinsicLayout {
-    var topInteractionBuffer: CGFloat {
-        return 100.0
+class ModalPanelLayout: FloatingPanelLayout {
+    let position: FloatingPanelRectEdge = .bottom
+    let initialState: FloatingPanelState = .full
+
+    var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
+        return [
+            .full: FloatingPanelIntrinsicLayoutAnchor(absoluteVisibleOffset: 0.0, referenceGuide: .safeArea),
+        ]
     }
-    func backdropAlphaFor(position: FloatingPanelPosition) -> CGFloat {
+
+    func interactionBuffer(for edge: FloatingPanelRectEdge) -> CGFloat {
+        switch edge {
+        case .top: return 100.0
+        case .bottom: return 6.0
+        }
+    }
+
+    func backdropAlphaFor(position: FloatingPanelState) -> CGFloat {
         return 0.3
     }
 }
@@ -925,19 +930,8 @@ class ModalViewController: UIViewController, FloatingPanelControllerDelegate {
     }
 }
 
-class ModalSecondLayout: FloatingPanelLayout {
-    var initialPosition: FloatingPanelPosition {
-        return .half
-    }
-
-    func insetFor(position: FloatingPanelPosition) -> CGFloat? {
-        switch position {
-        case .full: return 18.0
-        case .half: return 262.0
-        case .tip: return 44.0
-        case .hidden: return nil
-        }
-    }
+class ModalSecondLayout: FloatingPanelDefaultLayout {
+    override var initialState: FloatingPanelState { .half }
 }
 
 class TabBarViewController: UITabBarController {}
@@ -1050,7 +1044,7 @@ extension TabBarContentViewController: UITextViewDelegate {
         // Using KVO of `scrollView.contentOffset`). Because it can lead to an
         // infinite loop if a user also resets a content offset as below and,
         // in the situation, a user has to modify the library.
-        if fpc.position != .full, fpc.surfaceView.frame.minY > fpc.surfaceOffset(for: .full) {
+        if fpc.state != .full, fpc.surfaceView.frame.minY > fpc.surfaceOffset(for: .full) {
             scrollView.contentOffset = .zero
         }
     }
@@ -1135,13 +1129,13 @@ extension TabBarContentViewController: FloatingPanelControllerDelegate {
         case .changeAutoLayout:
             /* Good Solution: Manipulate top constraint */
             assert(consoleVC.textViewTopConstraint != nil)
-            consoleVC.textViewTopConstraint?.constant = (vc.position == .full) ? vc.layoutInsets.top : 17.0
+            consoleVC.textViewTopConstraint?.constant = (vc.state == .full) ? vc.layoutInsets.top : 17.0
 
         case .changeOffset:
             /* Bad Solution: Manipulate scroll content inset */
             guard let scrollView = consoleVC.textView else { return }
             var insets = vc.adjustedContentInsets
-            insets.top = (vc.position == .full) ? vc.layoutInsets.top : 0.0
+            insets.top = (vc.state == .full) ? vc.layoutInsets.top : 0.0
             scrollView.contentInset = insets
             if scrollView.contentOffset.y - scrollView.contentInset.top < 0.0  {
                 scrollView.contentOffset = CGPoint(x: 0.0,
@@ -1149,7 +1143,7 @@ extension TabBarContentViewController: FloatingPanelControllerDelegate {
             }
         }
 
-        if vc.position == .tip {
+        if vc.state == .tip {
             threeLayout.leftConstraint.constant = threeLayout.sideMargin
             threeLayout.rightConstraint.constant = -threeLayout.sideMargin
         } else {
@@ -1162,58 +1156,31 @@ extension TabBarContentViewController: FloatingPanelControllerDelegate {
     }
 }
 
-extension FloatingPanelLayout {
-    func prepareLayout(surfaceView: UIView, in view: UIView) -> [NSLayoutConstraint] {
-        if #available(iOS 11.0, *) {
-            return [
-                surfaceView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 0.0),
-                surfaceView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: 0.0),
-            ]
-        } else {
-            return [
-                surfaceView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 0.0),
-                surfaceView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: 0.0),
-            ]
-        }
-    }
-}
-
 class OneTabBarPanelLayout: FloatingPanelLayout {
-    var initialPosition: FloatingPanelPosition {
-        return .tip
-    }
-    var supportedPositions: Set<FloatingPanelPosition> {
-        return [.full, .tip]
-    }
-
-    func insetFor(position: FloatingPanelPosition) -> CGFloat? {
-        switch position {
-        case .full: return 16.0
-        case .tip: return 22.0
-        default: return nil
-        }
+    var initialState: FloatingPanelState { .tip }
+    var position: FloatingPanelRectEdge { .bottom }
+    var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
+        return [
+            .full: FloatingPanelLayoutAnchor(absoluteInset: 16.0, referenceGuide: .safeArea, edge: .top),
+            .tip: FloatingPanelLayoutAnchor(absoluteInset: 22.0, referenceGuide: .safeArea, edge: .bottom)
+        ]
     }
 }
 
 class TwoTabBarPanelLayout: FloatingPanelLayout {
-    var initialPosition: FloatingPanelPosition {
-        return .half
-    }
-    var supportedPositions: Set<FloatingPanelPosition> {
-        return [.full, .half]
-    }
-    var topInteractionBuffer: CGFloat {
-        return 100.0
-    }
-    var bottomInteractionBuffer: CGFloat {
-        return 261.0 - 22.0
+    var initialState: FloatingPanelState { .half }
+    var position: FloatingPanelRectEdge { .bottom }
+    var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
+        return [
+            .full: FloatingPanelLayoutAnchor(absoluteInset: 100.0, referenceGuide: .safeArea, edge: .top),
+            .half: FloatingPanelLayoutAnchor(absoluteInset: 261.0, referenceGuide: .safeArea, edge: .bottom)
+        ]
     }
 
-    func insetFor(position: FloatingPanelPosition) -> CGFloat? {
-        switch position {
-        case .full: return 100.0
-        case .half: return 261.0
-        default: return nil
+    func interactionBuffer(for edge: FloatingPanelRectEdge) -> CGFloat {
+        switch edge {
+        case .top: return 100.0
+        case .bottom: return 261.0 - 22.0
         }
     }
 }
@@ -1225,7 +1192,7 @@ class TwoTabBarPanelBehavior: FloatingPanelBehavior {
 }
 
 
-class ThreeTabBarPanelLayout: FloatingPanelFullScreenLayout {
+class ThreeTabBarPanelLayout: FloatingPanelLayout {
     weak var parentVC: UIViewController!
 
     var leftConstraint: NSLayoutConstraint!
@@ -1238,23 +1205,24 @@ class ThreeTabBarPanelLayout: FloatingPanelFullScreenLayout {
         parentVC = parent
     }
 
-    var bottomInteractionBuffer: CGFloat = 44.0
+    var initialState: FloatingPanelState { .half }
+    var position: FloatingPanelRectEdge { .bottom }
+    var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
+        return [
+            .full: FloatingPanelLayoutAnchor(absoluteInset: 0.0, referenceGuide: .superview, edge: .top),
+            .half: FloatingPanelLayoutAnchor(absoluteInset: 261.0 + parentVC.layoutInsets.bottom, referenceGuide: .superview, edge: .bottom),
+            .tip: FloatingPanelLayoutAnchor(absoluteInset: 88.0 + parentVC.layoutInsets.bottom, referenceGuide: .superview, edge: .bottom),
+        ]
+    }
 
-    var initialPosition: FloatingPanelPosition {
-        return .half
-    }
-    var supportedPositions: Set<FloatingPanelPosition> {
-        return [.full, .half, .tip]
-    }
-    func insetFor(position: FloatingPanelPosition) -> CGFloat? {
-        switch position {
-        case .full: return 0.0
-        case .half: return 261.0 + parentVC.layoutInsets.bottom
-        case .tip: return 88.0 + parentVC.layoutInsets.bottom
-        default: return nil
+    func interactionBuffer(for edge: FloatingPanelRectEdge) -> CGFloat {
+        switch edge {
+        case .top: return 6.0
+        case .bottom: return 44.0
         }
     }
-    func backdropAlphaFor(position: FloatingPanelPosition) -> CGFloat {
+
+    func backdropAlphaFor(position: FloatingPanelState) -> CGFloat {
         return 0.3
     }
     func prepareLayout(surfaceView: UIView, in view: UIView) -> [NSLayoutConstraint] {
