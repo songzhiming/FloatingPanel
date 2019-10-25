@@ -581,8 +581,36 @@ open class FloatingPanelController: UIViewController {
 
     /// Returns the y-coordinate of the point at the origin of the surface view.
     @objc
-    public func surfaceOffset(for state: FloatingPanelState) -> CGFloat {
-        return floatingPanel.layoutAdapter.positionY(for: state)
+    public func surfaceEdgePosition(for state: FloatingPanelState) -> CGPoint {
+        return CGPoint(x: view.bounds.width * 0.5,
+                       y: displayTrunc(floatingPanel.layoutAdapter.positionY(for: state),
+                                       by: surfaceView.traitCollection.displayScale))
+    }
+
+    @objc
+    public var surfaceEdgePosition: CGPoint {
+        return CGPoint(x: view.bounds.width * 0.5,
+                       y: displayTrunc(floatingPanel.layoutAdapter.edgeY(surfaceView.frame),
+                                       by: surfaceView.traitCollection.displayScale))
+    }
+
+    @objc
+    public func surfaceEdgeOffset(for state: FloatingPanelState) -> CGPoint {
+        return floatingPanel.layoutAdapter.offset(for: state)
+    }
+
+    @objc
+    public var surfaceEdgeOffset: CGPoint {
+        switch layout.interactiveEdge {
+        case .top:
+            return CGPoint(x: 0.0,
+                           y: displayTrunc((view.bounds.height - surfaceView.frame.minY),
+                                           by: surfaceView.traitCollection.displayScale))
+        case .bottom:
+            return CGPoint(x: 0.0,
+                           y: displayTrunc(surfaceView.frame.maxY,
+                                           by: surfaceView.traitCollection.displayScale))
+        }
     }
 }
 

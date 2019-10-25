@@ -4,6 +4,17 @@
 //
 
 import UIKit
+import simd
+
+internal func displayTrunc(_ v: CGFloat, by s: CGFloat) -> CGFloat {
+    let base = (1 / s)
+    let t = v.rounded(.down)
+    return t + ((v - t) / base).rounded(.toNearestOrAwayFromZero) * base
+}
+
+internal func displayEqual(_ lhs: CGFloat, _ rhs: CGFloat, by displayScale: CGFloat) -> Bool {
+    return displayTrunc(lhs, by: displayScale) == displayTrunc(rhs, by: displayScale)
+}
 
 protocol LayoutGuideProvider {
     var topAnchor: NSLayoutYAxisAnchor { get }

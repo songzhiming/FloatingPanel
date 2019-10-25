@@ -75,7 +75,7 @@ class FloatingPanelTests: XCTestCase {
 
         fpc.showForTest()
 
-        let fullPos = fpc.surfaceOffset(for: .full)
+        let fullPos = fpc.surfaceEdgePosition(for: .full).y
 
         XCTAssertEqual(fpc.floatingPanel.getBackdropAlpha(at: fullPos - 100.0, with: CGPoint(x: 0.0, y: -100.0)), 0.3)
         XCTAssertEqual(fpc.floatingPanel.getBackdropAlpha(at: fullPos, with: CGPoint(x: 0.0, y: 0.0)), 0.3)
@@ -100,8 +100,8 @@ class FloatingPanelTests: XCTestCase {
 
         fpc.showForTest()
 
-        let fullPos = fpc.surfaceOffset(for: .full)
-        let halfPos = fpc.surfaceOffset(for: .half)
+        let fullPos = fpc.surfaceEdgePosition(for: .full).y
+        let halfPos = fpc.surfaceEdgePosition(for: .half).y
         let distance1 = abs(halfPos - fullPos)
 
         fpc.move(to: .full, animated: false)
@@ -126,8 +126,8 @@ class FloatingPanelTests: XCTestCase {
 
         fpc.showForTest()
 
-        let fullPos = fpc.surfaceOffset(for: .full)
-        let hiddenPos = fpc.surfaceOffset(for: .hidden)
+        let fullPos = fpc.surfaceEdgePosition(for: .full).y
+        let hiddenPos = fpc.surfaceEdgePosition(for: .hidden).y
 
         XCTAssertEqual(fpc.floatingPanel.getBackdropAlpha(at: fullPos - 100.0, with: CGPoint(x: 0.0, y: -100.0)), 0.3)
         XCTAssertEqual(fpc.floatingPanel.getBackdropAlpha(at: fullPos, with: CGPoint(x: 0.0, y: 0.0)), 0.3)
@@ -138,9 +138,9 @@ class FloatingPanelTests: XCTestCase {
         let fpc = FloatingPanelController()
         fpc.showForTest()
 
-        let fullPos = fpc.surfaceOffset(for: .full)
-        let halfPos = fpc.surfaceOffset(for: .half)
-        let tipPos = fpc.surfaceOffset(for: .tip)
+        let fullPos = fpc.surfaceEdgePosition(for: .full).y
+        let halfPos = fpc.surfaceEdgePosition(for: .half).y
+        let tipPos = fpc.surfaceEdgePosition(for: .tip).y
         let distance1 = abs(halfPos - fullPos)
         let distance2 = abs(tipPos - halfPos)
 
@@ -175,7 +175,7 @@ class FloatingPanelTests: XCTestCase {
 
         fpc.showForTest()
 
-        let fullPos = fpc.surfaceOffset(for: .full)
+        let fullPos = fpc.surfaceEdgePosition(for: .full).y
 
         fpc.move(to: .full, animated: false)
         assertTargetPosition(fpc.floatingPanel, with: [
@@ -207,8 +207,8 @@ class FloatingPanelTests: XCTestCase {
 
         fpc.showForTest()
 
-        let fullPos = fpc.surfaceOffset(for: .full)
-        let halfPos = fpc.surfaceOffset(for: .half)
+        let fullPos = fpc.surfaceEdgePosition(for: .full).y
+        let halfPos = fpc.surfaceEdgePosition(for: .half).y
 
         fpc.move(to: .full, animated: false)
         assertTargetPosition(fpc.floatingPanel, with: [
@@ -264,8 +264,8 @@ class FloatingPanelTests: XCTestCase {
 
         fpc.showForTest()
 
-        let fullPos = fpc.surfaceOffset(for: .full)
-        let hiddenPos = fpc.surfaceOffset(for: .hidden)
+        let fullPos = fpc.surfaceEdgePosition(for: .full).y
+        let hiddenPos = fpc.surfaceEdgePosition(for: .hidden).y
 
         fpc.move(to: .full, animated: false)
         assertTargetPosition(fpc.floatingPanel, with: [
@@ -310,9 +310,9 @@ class FloatingPanelTests: XCTestCase {
 
         fpc.showForTest()
 
-        let fullPos = fpc.surfaceOffset(for: .full)
-        let halfPos = fpc.surfaceOffset(for: .half)
-        let tipPos = fpc.surfaceOffset(for: .tip)
+        let fullPos = fpc.surfaceEdgePosition(for: .full).y
+        let halfPos = fpc.surfaceEdgePosition(for: .half).y
+        let tipPos = fpc.surfaceEdgePosition(for: .tip).y
         // From .full
         fpc.move(to: .full, animated: false)
         assertTargetPosition(fpc.floatingPanel, with: [
@@ -354,9 +354,9 @@ class FloatingPanelTests: XCTestCase {
 
         fpc.showForTest()
 
-        let fullPos = fpc.surfaceOffset(for: .full)
-        let halfPos = fpc.surfaceOffset(for: .half)
-        let tipPos = fpc.surfaceOffset(for: .tip)
+        let fullPos = fpc.surfaceEdgePosition(for: .full).y
+        let halfPos = fpc.surfaceEdgePosition(for: .half).y
+        let tipPos = fpc.surfaceEdgePosition(for: .tip).y
         // From .full
         fpc.move(to: .full, animated: false)
         assertTargetPosition(fpc.floatingPanel, with: [
@@ -398,9 +398,9 @@ class FloatingPanelTests: XCTestCase {
 
         fpc.showForTest()
 
-        let fullPos = fpc.surfaceOffset(for: .full)
-        let halfPos = fpc.surfaceOffset(for: .half)
-        let tipPos = fpc.surfaceOffset(for: .tip)
+        let fullPos = fpc.surfaceEdgePosition(for: .full).y
+        let halfPos = fpc.surfaceEdgePosition(for: .half).y
+        let tipPos = fpc.surfaceEdgePosition(for: .tip).y
         // From .half
         fpc.move(to: .half, animated: false)
         assertTargetPosition(fpc.floatingPanel, with: [
@@ -440,9 +440,9 @@ class FloatingPanelTests: XCTestCase {
 
             fpc.showForTest()
 
-            let fullPos = fpc.surfaceOffset(for: .full)
-            let halfPos = fpc.surfaceOffset(for: .half)
-            let tipPos = fpc.surfaceOffset(for: .tip)
+            let fullPos = fpc.surfaceEdgePosition(for: .full).y
+            let halfPos = fpc.surfaceEdgePosition(for: .half).y
+            let tipPos = fpc.surfaceEdgePosition(for: .tip).y
             // From .half
             fpc.move(to: .half, animated: false)
             assertTargetPosition(fpc.floatingPanel, with: [
@@ -482,9 +482,9 @@ class FloatingPanelTests: XCTestCase {
 
         fpc.showForTest()
 
-        let fullPos = fpc.surfaceOffset(for: .full)
-        let halfPos = fpc.surfaceOffset(for: .half)
-        let tipPos = fpc.surfaceOffset(for: .tip)
+        let fullPos = fpc.surfaceEdgePosition(for: .full).y
+        let halfPos = fpc.surfaceEdgePosition(for: .half).y
+        let tipPos = fpc.surfaceEdgePosition(for: .tip).y
 
         // From .tip
         fpc.move(to: .tip, animated: false)
@@ -525,9 +525,9 @@ class FloatingPanelTests: XCTestCase {
 
         fpc.showForTest()
 
-            let fullPos = fpc.surfaceOffset(for: .full)
-            let halfPos = fpc.surfaceOffset(for: .half)
-            let tipPos = fpc.surfaceOffset(for: .tip)
+            let fullPos = fpc.surfaceEdgePosition(for: .full).y
+            let halfPos = fpc.surfaceEdgePosition(for: .half).y
+            let tipPos = fpc.surfaceEdgePosition(for: .tip).y
 
             // From .tip
             fpc.move(to: .tip, animated: false)
@@ -569,9 +569,9 @@ class FloatingPanelTests: XCTestCase {
 
         fpc.showForTest()
 
-        let fullPos = fpc.surfaceOffset(for: .full)
-        let halfPos = fpc.surfaceOffset(for: .half)
-        let tipPos = fpc.surfaceOffset(for: .tip)
+        let fullPos = fpc.surfaceEdgePosition(for: .full).y
+        let halfPos = fpc.surfaceEdgePosition(for: .half).y
+        let tipPos = fpc.surfaceEdgePosition(for: .tip).y
 
         // From .full
         fpc.move(to: .full, animated: false)
@@ -662,9 +662,9 @@ class FloatingPanelTests: XCTestCase {
         fpc.behavior = FloatingPanelProjectionalBehavior()
         XCTAssertEqual(fpc.state, .hidden)
 
-        let halfPos = fpc.surfaceOffset(for: .half)
-        let tipPos = fpc.surfaceOffset(for: .tip)
-        //let hiddenPos = fpc.surfaceOffset(for: .hidden)
+        let halfPos = fpc.surfaceEdgePosition(for: .half).y
+        let tipPos = fpc.surfaceEdgePosition(for: .tip).y
+        //let hiddenPos = fpc.surfaceEdgePosition(for: .hidden)
 
         fpc.move(to: .half, animated: false)
         assertTargetPosition(fpc.floatingPanel, with: [

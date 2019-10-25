@@ -216,7 +216,7 @@ open class FloatingPanelDefaultLayout: NSObject, FloatingPanelLayout {
     open var layoutAnchors: [FloatingPanelState: FloatingPanelLayoutAnchoring]  {
         return [
             .full: FloatingPanelLayoutAnchor(absoluteInset: 18.0, referenceGuide: .safeArea, edge: .top),
-            .half: FloatingPanelLayoutAnchor(absoluteInset: 262.0, referenceGuide: .safeArea, edge: .bottom),
+            .half: FloatingPanelLayoutAnchor(fractionalInset: 0.5, referenceGuide: .safeArea, edge: .bottom),
             .tip: FloatingPanelLayoutAnchor(absoluteInset: 69.0, referenceGuide: .safeArea, edge: .bottom),
             //.hidden: FloatingPanelLayoutAnchor.hidden
         ]
@@ -364,6 +364,19 @@ class FloatingPanelLayoutAdapter {
         }
     }
 
+    func offset(for state: FloatingPanelState) -> CGPoint {
+        switch layout.interactiveEdge {
+        case .top:
+            return CGPoint(x: 0.0,
+                           y: displayTrunc(positionY(for: .hidden) - positionY(for: state),
+                                           by: surfaceView.traitCollection.displayScale))
+        case .bottom:
+            return CGPoint(x: 0.0,
+                           y: displayTrunc(positionY(for: state),
+                                           by: surfaceView.traitCollection.displayScale))
+        }
+    }
+
     func positionY(for pos: FloatingPanelState) -> CGFloat {
         let bounds = vc.view.bounds
         let safeAreaBounds = vc.view.bounds.inset(by: vc.fp_safeAreaInsets)
@@ -441,6 +454,16 @@ class FloatingPanelLayoutAdapter {
                     fatalError("Unsupported edges")
                 }
             }
+        }
+    }
+
+
+    func isSurfaceDisplayEqual(to state: FloatingPanelState) -> Bool {
+        switch layout.position {
+        case .top:
+            return displayEqual(surfaceView.frame.maxY, positionY(for: state), by: surfaceView.traitCollection.displayScale)
+        case .bottom:
+            return displayEqual(surfaceView.frame.minY, positionY(for: state), by: surfaceView.traitCollection.displayScale)
         }
     }
 

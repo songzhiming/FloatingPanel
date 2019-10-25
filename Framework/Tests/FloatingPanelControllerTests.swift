@@ -28,9 +28,9 @@ class FloatingPanelControllerTests: XCTestCase {
         guard let rootVC = UIApplication.shared.keyWindow?.rootViewController else { fatalError() }
         let fpc = FloatingPanelController()
         fpc.addPanel(toParent: rootVC)
-        XCTAssertEqual(fpc.surfaceView.frame.minY, fpc.surfaceOffset(for: .half))
+        XCTAssertEqual(fpc.surfaceEdgePosition.y, fpc.surfaceEdgePosition(for: .half).y)
         fpc.move(to: .tip, animated: false)
-        XCTAssertEqual(fpc.surfaceView.frame.minY, fpc.surfaceOffset(for: .tip))
+        XCTAssertEqual(fpc.surfaceEdgePosition.y, fpc.surfaceEdgePosition(for: .tip).y)
     }
 
     @available(iOS 12.0, *)
@@ -63,42 +63,43 @@ class FloatingPanelControllerTests: XCTestCase {
         fpc.move(to: .full, animated: false)
         XCTAssertEqual(fpc.state, .full)
         XCTAssertEqual(delegate.position, .full)
-        XCTAssertEqual(fpc.surfaceView.frame.minY, fpc.surfaceOffset(for: .full))
+        XCTAssertEqual(fpc.surfaceEdgePosition.y, fpc.surfaceEdgePosition(for: .full).y)
 
         fpc.move(to: .half, animated: false)
         XCTAssertEqual(fpc.state, .half)
         XCTAssertEqual(delegate.position, .half)
-        XCTAssertEqual(fpc.surfaceView.frame.minY, fpc.surfaceOffset(for: .half))
+
+        XCTAssertEqual(fpc.surfaceEdgePosition, fpc.surfaceEdgePosition(for: .half))
 
         fpc.move(to: .tip, animated: false)
         XCTAssertEqual(fpc.state, .tip)
         XCTAssertEqual(delegate.position, .tip)
-        XCTAssertEqual(fpc.surfaceView.frame.minY, fpc.surfaceOffset(for: .tip))
+        XCTAssertEqual(fpc.surfaceEdgePosition.y, fpc.surfaceEdgePosition(for: .tip).y)
 
         fpc.move(to: .hidden, animated: false)
         XCTAssertEqual(fpc.state, .hidden)
         XCTAssertEqual(delegate.position, .hidden)
-        XCTAssertEqual(fpc.surfaceView.frame.minY, fpc.surfaceOffset(for: .hidden))
+        XCTAssertEqual(fpc.surfaceEdgePosition.y, fpc.surfaceEdgePosition(for: .hidden).y)
 
         fpc.move(to: .full, animated: true)
         XCTAssertEqual(fpc.state, .full)
         XCTAssertEqual(delegate.position, .full)
-        XCTAssertEqual(fpc.surfaceView.frame.minY, fpc.surfaceOffset(for: .full))
+        XCTAssertEqual(fpc.surfaceEdgePosition.y, fpc.surfaceEdgePosition(for: .full).y)
 
         fpc.move(to: .half, animated: true)
         XCTAssertEqual(fpc.state, .half)
         XCTAssertEqual(delegate.position, .half)
-        XCTAssertEqual(fpc.surfaceView.frame.minY, fpc.surfaceOffset(for: .half))
+        XCTAssertEqual(fpc.surfaceEdgePosition, fpc.surfaceEdgePosition(for: .half))
 
         fpc.move(to: .tip, animated: true)
         XCTAssertEqual(fpc.state, .tip)
         XCTAssertEqual(delegate.position, .tip)
-        XCTAssertEqual(fpc.surfaceView.frame.minY, fpc.surfaceOffset(for: .tip))
+        XCTAssertEqual(fpc.surfaceEdgePosition.y, fpc.surfaceEdgePosition(for: .tip).y)
 
         fpc.move(to: .hidden, animated: true)
         XCTAssertEqual(fpc.state, .hidden)
         XCTAssertEqual(delegate.position, .hidden)
-        XCTAssertEqual(fpc.surfaceView.frame.minY, fpc.surfaceOffset(for: .hidden))
+        XCTAssertEqual(fpc.surfaceEdgePosition.y, fpc.surfaceEdgePosition(for: .hidden).y)
     }
 
     func test_moveTo_bottomEdge() {
@@ -118,42 +119,42 @@ class FloatingPanelControllerTests: XCTestCase {
         fpc.move(to: .full, animated: false)
         XCTAssertEqual(fpc.state, .full)
         XCTAssertEqual(delegate.position, .full)
-        XCTAssertEqual(fpc.surfaceView.frame.maxY, fpc.surfaceOffset(for: .full))
+        XCTAssertEqual(fpc.surfaceEdgePosition.y, fpc.surfaceEdgePosition(for: .full).y)
 
         fpc.move(to: .half, animated: false)
         XCTAssertEqual(fpc.state, .half)
         XCTAssertEqual(delegate.position, .half)
-        XCTAssertEqual(fpc.surfaceView.frame.maxY, fpc.surfaceOffset(for: .half))
+        XCTAssertEqual(fpc.surfaceEdgePosition.y, fpc.surfaceEdgePosition(for: .half).y)
 
         fpc.move(to: .tip, animated: false)
         XCTAssertEqual(fpc.state, .tip)
         XCTAssertEqual(delegate.position, .tip)
-        XCTAssertEqual(fpc.surfaceView.frame.maxY, fpc.surfaceOffset(for: .tip))
+        XCTAssertEqual(fpc.surfaceEdgePosition.y, fpc.surfaceEdgePosition(for: .tip).y)
 
         fpc.move(to: .hidden, animated: false)
         XCTAssertEqual(fpc.state, .hidden)
         XCTAssertEqual(delegate.position, .hidden)
-        XCTAssertEqual(fpc.surfaceView.frame.maxY, fpc.surfaceOffset(for: .hidden))
+        XCTAssertEqual(fpc.surfaceEdgePosition.y, fpc.surfaceEdgePosition(for: .hidden).y)
 
         fpc.move(to: .full, animated: true)
         XCTAssertEqual(fpc.state, .full)
         XCTAssertEqual(delegate.position, .full)
-        XCTAssertEqual(fpc.surfaceView.frame.maxY, fpc.surfaceOffset(for: .full))
+        XCTAssertEqual(fpc.surfaceEdgePosition.y, fpc.surfaceEdgePosition(for: .full).y)
 
         fpc.move(to: .half, animated: true)
         XCTAssertEqual(fpc.state, .half)
         XCTAssertEqual(delegate.position, .half)
-        XCTAssertEqual(fpc.surfaceView.frame.maxY, fpc.surfaceOffset(for: .half))
+        XCTAssertEqual(fpc.surfaceEdgePosition.y, fpc.surfaceEdgePosition(for: .half).y)
 
         fpc.move(to: .tip, animated: true)
         XCTAssertEqual(fpc.state, .tip)
         XCTAssertEqual(delegate.position, .tip)
-        XCTAssertEqual(fpc.surfaceView.frame.maxY, fpc.surfaceOffset(for: .tip))
+        XCTAssertEqual(fpc.surfaceEdgePosition.y, fpc.surfaceEdgePosition(for: .tip).y)
 
         fpc.move(to: .hidden, animated: true)
         XCTAssertEqual(fpc.state, .hidden)
         XCTAssertEqual(delegate.position, .hidden)
-        XCTAssertEqual(fpc.surfaceView.frame.maxY, fpc.surfaceOffset(for: .hidden))
+        XCTAssertEqual(fpc.surfaceEdgePosition.y, fpc.surfaceEdgePosition(for: .hidden).y)
     }
 
     func test_originSurfaceY() {
@@ -163,13 +164,13 @@ class FloatingPanelControllerTests: XCTestCase {
         fpc.show(animated: false, completion: nil)
 
         fpc.move(to: .full, animated: false)
-        XCTAssertEqual(fpc.surfaceView.frame.minY, fpc.surfaceOffset(for: .full))
+        XCTAssertEqual(fpc.surfaceEdgePosition, fpc.surfaceEdgePosition(for: .full))
         fpc.move(to: .half, animated: false)
-        XCTAssertEqual(fpc.surfaceView.frame.minY, fpc.surfaceOffset(for: .half))
+        XCTAssertEqual(fpc.surfaceEdgePosition, fpc.surfaceEdgePosition(for: .half))
         fpc.move(to: .tip, animated: false)
-        XCTAssertEqual(fpc.surfaceView.frame.minY, fpc.surfaceOffset(for: .tip))
+        XCTAssertEqual(fpc.surfaceEdgePosition, fpc.surfaceEdgePosition(for: .tip))
         fpc.move(to: .hidden, animated: false)
-        XCTAssertEqual(fpc.surfaceView.frame.minY, fpc.surfaceOffset(for: .hidden))
+        XCTAssertEqual(fpc.surfaceEdgePosition, fpc.surfaceEdgePosition(for: .hidden))
     }
 
     func test_contentMode() {
@@ -181,21 +182,21 @@ class FloatingPanelControllerTests: XCTestCase {
         fpc.contentMode = .static
 
         fpc.move(to: .full, animated: false)
-        XCTAssertEqual(fpc.surfaceView.frame.height, fpc.view.bounds.height - fpc.surfaceOffset(for: .full))
+        XCTAssertEqual(fpc.surfaceView.frame.height, fpc.view.bounds.height - fpc.surfaceEdgePosition(for: .full).y)
         fpc.move(to: .half, animated: false)
-        XCTAssertEqual(fpc.surfaceView.frame.height, fpc.view.bounds.height - fpc.surfaceOffset(for: .full))
+        XCTAssertEqual(fpc.surfaceView.frame.height, fpc.view.bounds.height - fpc.surfaceEdgePosition(for: .full).y)
         fpc.move(to: .tip, animated: false)
-        XCTAssertEqual(fpc.surfaceView.frame.height, fpc.view.bounds.height - fpc.surfaceOffset(for: .full))
+        XCTAssertEqual(fpc.surfaceView.frame.height, fpc.view.bounds.height - fpc.surfaceEdgePosition(for: .full).y)
 
         fpc.contentMode = .fitToBounds
 
         fpc.move(to: .full, animated: false)
-        XCTAssertEqual(fpc.surfaceView.frame.height, fpc.view.bounds.height - fpc.surfaceOffset(for: .full))
+        XCTAssertEqual(fpc.surfaceView.frame.height, fpc.view.bounds.height - fpc.surfaceEdgePosition(for: .full).y)
         fpc.move(to: .half, animated: false)
         print(1 / fpc.surfaceView.traitCollection.displayScale)
-        XCTAssertEqual(fpc.surfaceView.frame.height, fpc.view.bounds.height - fpc.surfaceOffset(for: .half))
+        XCTAssertEqual(fpc.surfaceView.frame.height, fpc.view.bounds.height - fpc.surfaceEdgePosition(for: .half).y)
         fpc.move(to: .tip, animated: false)
-        XCTAssertEqual(fpc.surfaceView.frame.height, fpc.view.bounds.height - fpc.surfaceOffset(for: .tip))
+        XCTAssertEqual(fpc.surfaceView.frame.height, fpc.view.bounds.height - fpc.surfaceEdgePosition(for: .tip).y)
     }
 }
 

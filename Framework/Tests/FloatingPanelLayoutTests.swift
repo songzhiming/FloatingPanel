@@ -56,9 +56,9 @@ class FloatingPanelLayoutTests: XCTestCase {
 
         fpc.layout = FloatingPanelLayout3Positions()
 
-        let fullPos = fpc.surfaceOffset(for: .full)
-        let halfPos = fpc.surfaceOffset(for: .half)
-        let tipPos = fpc.surfaceOffset(for: .tip)
+        let fullPos = fpc.surfaceEdgePosition(for: .full).y
+        let halfPos = fpc.surfaceEdgePosition(for: .half).y
+        let tipPos = fpc.surfaceEdgePosition(for: .tip).y
 
         let minPos = CGFloat.leastNormalMagnitude
         let maxPos = CGFloat.greatestFiniteMagnitude
@@ -86,8 +86,8 @@ class FloatingPanelLayoutTests: XCTestCase {
 
         fpc.layout = FloatingPanelLayout2Positions()
 
-        let fullPos = fpc.surfaceOffset(for: .full)
-        let halfPos = fpc.surfaceOffset(for: .half)
+        let fullPos = fpc.surfaceEdgePosition(for: .full).y
+        let halfPos = fpc.surfaceEdgePosition(for: .half).y
 
         let minPos = CGFloat.leastNormalMagnitude
         let maxPos = CGFloat.greatestFiniteMagnitude
@@ -113,7 +113,7 @@ class FloatingPanelLayoutTests: XCTestCase {
 
         fpc.layout = FloatingPanelLayout1Positions()
 
-        let fullPos = fpc.surfaceOffset(for: .full)
+        let fullPos = fpc.surfaceEdgePosition(for: .full).y
 
         let minPos = CGFloat.leastNormalMagnitude
         let maxPos = CGFloat.greatestFiniteMagnitude
@@ -135,8 +135,8 @@ class FloatingPanelLayoutTests: XCTestCase {
         fpc.floatingPanel.layoutAdapter.startInteraction(at: fpc.state)
         fpc.floatingPanel.layoutAdapter.startInteraction(at: fpc.state) // Should be ignore
 
-        let fullPos = fpc.surfaceOffset(for: .full)
-        let tipPos = fpc.surfaceOffset(for: .tip)
+        let fullPos = fpc.surfaceEdgePosition(for: .full).y
+        let tipPos = fpc.surfaceEdgePosition(for: .tip).y
 
         var pre: CGFloat
         var next: CGFloat
@@ -177,8 +177,8 @@ class FloatingPanelLayoutTests: XCTestCase {
 
         XCTAssertEqual(fpc.floatingPanel.layoutAdapter.interactiveEdgeConstraint?.constant, 60.0)
 
-        let fullPos = fpc.surfaceOffset(for: .full)
-        let tipPos = fpc.surfaceOffset(for: .tip)
+        let fullPos = fpc.surfaceEdgePosition(for: .full).y
+        let tipPos = fpc.surfaceEdgePosition(for: .tip).y
 
         var pre: CGFloat
         var next: CGFloat
@@ -223,8 +223,8 @@ class FloatingPanelLayoutTests: XCTestCase {
 
         fpc.floatingPanel.layoutAdapter.startInteraction(at: fpc.state)
 
-        let fullPos = fpc.surfaceOffset(for: .full)
-        let hiddenPos = fpc.surfaceOffset(for: .hidden)
+        let fullPos = fpc.surfaceEdgePosition(for: .full).y
+        let hiddenPos = fpc.surfaceEdgePosition(for: .hidden).y
 
         var pre: CGFloat
         var next: CGFloat
@@ -270,18 +270,18 @@ class FloatingPanelLayoutTests: XCTestCase {
 
         let bounds = fpc.view!.bounds
         XCTAssertEqual(fpc.layout.layoutAnchors.filter({ $0.value.referenceGuide != .superview }).count, 0)
-        XCTAssertEqual(fpc.surfaceOffset(for: .full), fpc.layout.layoutAnchors[.full]!.value)
-        XCTAssertEqual(fpc.surfaceOffset(for: .half), bounds.height - fpc.layout.layoutAnchors[.half]!.value)
-        XCTAssertEqual(fpc.surfaceOffset(for: .tip), bounds.height - fpc.layout.layoutAnchors[.tip]!.value)
-        XCTAssertEqual(fpc.surfaceOffset(for: .hidden), bounds.height)
+        XCTAssertEqual(fpc.surfaceEdgePosition(for: .full).y, fpc.layout.layoutAnchors[.full]!.value)
+        XCTAssertEqual(fpc.surfaceEdgePosition(for: .half).y, bounds.height - fpc.layout.layoutAnchors[.half]!.value)
+        XCTAssertEqual(fpc.surfaceEdgePosition(for: .tip).y, bounds.height - fpc.layout.layoutAnchors[.tip]!.value)
+        XCTAssertEqual(fpc.surfaceEdgePosition(for: .hidden).y, bounds.height)
 
         fpc.layout = MyFloatingPanelSafeAreaLayout()
 
         XCTAssertEqual(fpc.layout.layoutAnchors.filter({ $0.value.referenceGuide != .safeArea }).count, 0)
-        XCTAssertEqual(fpc.surfaceOffset(for: .full), fpc.layout.layoutAnchors[.full]!.value + fpc.fp_safeAreaInsets.top)
-        XCTAssertEqual(fpc.surfaceOffset(for: .half), bounds.height - fpc.layout.layoutAnchors[.half]!.value + fpc.fp_safeAreaInsets.bottom)
-        XCTAssertEqual(fpc.surfaceOffset(for: .tip), bounds.height - fpc.layout.layoutAnchors[.tip]!.value +  fpc.fp_safeAreaInsets.bottom)
-        XCTAssertEqual(fpc.surfaceOffset(for: .hidden), bounds.height)
+        XCTAssertEqual(fpc.surfaceEdgePosition(for: .full).y, fpc.layout.layoutAnchors[.full]!.value + fpc.fp_safeAreaInsets.top)
+        XCTAssertEqual(fpc.surfaceEdgePosition(for: .half).y, bounds.height - fpc.layout.layoutAnchors[.half]!.value + fpc.fp_safeAreaInsets.bottom)
+        XCTAssertEqual(fpc.surfaceEdgePosition(for: .tip).y, bounds.height - fpc.layout.layoutAnchors[.tip]!.value +  fpc.fp_safeAreaInsets.bottom)
+        XCTAssertEqual(fpc.surfaceEdgePosition(for: .hidden).y, bounds.height)
     }
 
     func test_positionY_bottomEdge() {
@@ -300,19 +300,19 @@ class FloatingPanelLayoutTests: XCTestCase {
 
         let bounds = fpc.view!.bounds
         XCTAssertEqual(fpc.layout.layoutAnchors.filter({ $0.value.referenceGuide != .superview }).count, 0)
-        XCTAssertEqual(fpc.surfaceOffset(for: .full), bounds.height - fpc.layout.layoutAnchors[.full]!.value)
-        XCTAssertEqual(fpc.surfaceOffset(for: .half), fpc.layout.layoutAnchors[.half]!.value)
-        XCTAssertEqual(fpc.surfaceOffset(for: .tip),  fpc.layout.layoutAnchors[.tip]!.value)
-        XCTAssertEqual(fpc.surfaceOffset(for: .hidden), 0.0)
+        XCTAssertEqual(fpc.surfaceEdgePosition(for: .full).y, bounds.height - fpc.layout.layoutAnchors[.full]!.value)
+        XCTAssertEqual(fpc.surfaceEdgePosition(for: .half).y, fpc.layout.layoutAnchors[.half]!.value)
+        XCTAssertEqual(fpc.surfaceEdgePosition(for: .tip).y,  fpc.layout.layoutAnchors[.tip]!.value)
+        XCTAssertEqual(fpc.surfaceEdgePosition(for: .hidden).y, 0.0)
 
 
         fpc.layout = MyFloatingPanelSafeAreaLayout()
 
         XCTAssertEqual(fpc.layout.layoutAnchors.filter({ $0.value.referenceGuide != .safeArea }).count, 0)
-        XCTAssertEqual(fpc.surfaceOffset(for: .full), bounds.height - fpc.layout.layoutAnchors[.full]!.value + fpc.fp_safeAreaInsets.bottom)
-        XCTAssertEqual(fpc.surfaceOffset(for: .half), fpc.layout.layoutAnchors[.half]!.value + fpc.fp_safeAreaInsets.top)
-        XCTAssertEqual(fpc.surfaceOffset(for: .tip), fpc.layout.layoutAnchors[.tip]!.value +  fpc.fp_safeAreaInsets.top)
-        XCTAssertEqual(fpc.surfaceOffset(for: .hidden), 0.0)
+        XCTAssertEqual(fpc.surfaceEdgePosition(for: .full).y, bounds.height - fpc.layout.layoutAnchors[.full]!.value + fpc.fp_safeAreaInsets.bottom)
+        XCTAssertEqual(fpc.surfaceEdgePosition(for: .half).y, fpc.layout.layoutAnchors[.half]!.value + fpc.fp_safeAreaInsets.top)
+        XCTAssertEqual(fpc.surfaceEdgePosition(for: .tip).y, fpc.layout.layoutAnchors[.tip]!.value +  fpc.fp_safeAreaInsets.top)
+        XCTAssertEqual(fpc.surfaceEdgePosition(for: .hidden).y, 0.0)
     }
 }
 

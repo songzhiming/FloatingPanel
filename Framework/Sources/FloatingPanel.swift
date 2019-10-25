@@ -169,8 +169,8 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         let pre = forwardY ? lowerPos : upperPos
         let next = forwardY ? upperPos : lowerPos
 
-        let nextY = layoutAdapter.positionY(for: next)
-        let preY = layoutAdapter.positionY(for: pre)
+        let nextY = displayTrunc(layoutAdapter.positionY(for: next), by: surfaceView.traitCollection.displayScale)
+        let preY = displayTrunc(layoutAdapter.positionY(for: pre), by: surfaceView.traitCollection.displayScale)
 
         let nextAlpha = layoutAdapter.backdropAlpha(for: next)
         let preAlpha = layoutAdapter.backdropAlpha(for: pre)
