@@ -102,7 +102,7 @@ class NewsViewController: UIViewController {
 // MARK: My custom layout
 
 class FloatingPanelStocksLayout: FloatingPanelLayout {
-    let position: FloatingPanelRectEdge = .bottom
+    let position: FloatingPanelPosition = .bottom
     let initialState: FloatingPanelState = .tip
 
     var layoutAnchors: [FloatingPanelState: FloatingPanelLayoutAnchoring] {
@@ -114,7 +114,7 @@ class FloatingPanelStocksLayout: FloatingPanelLayout {
         ]
     }
 
-    func interactionBuffer(for edge: FloatingPanelRectEdge) -> CGFloat {
+    func interactionBuffer(for edge: FloatingPanelPosition) -> CGFloat {
         return 0.0
     }
 

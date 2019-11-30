@@ -10,7 +10,7 @@ import UIKit
     case safeArea = 1
 }
 
-@objc public enum FloatingPanelRectEdge: Int {
+@objc public enum FloatingPanelPosition: Int {
     case top
     case bottom
 }
@@ -20,7 +20,7 @@ import UIKit
     var referenceEdge: UIRectEdge { get }
     var isAbsolute: Bool { get }
     var value: CGFloat { get }
-    func layoutConstraints(_ vc: FloatingPanelController, for position: FloatingPanelRectEdge) -> [NSLayoutConstraint]
+    func layoutConstraints(_ vc: FloatingPanelController, for position: FloatingPanelPosition) -> [NSLayoutConstraint]
 }
 
 @objc final public class FloatingPanelLayoutAnchor: NSObject, FloatingPanelLayoutAnchoring /*, NSCopying */ {
@@ -47,7 +47,7 @@ import UIKit
 }
 
 public extension FloatingPanelLayoutAnchor {
-    func layoutConstraints(_ vc: FloatingPanelController, for position: FloatingPanelRectEdge) -> [NSLayoutConstraint] {
+    func layoutConstraints(_ vc: FloatingPanelController, for position: FloatingPanelPosition) -> [NSLayoutConstraint] {
         let edgeAnchor: NSLayoutYAxisAnchor = {
             switch position {
             case .top: return vc.surfaceView.bottomAnchor
@@ -126,7 +126,7 @@ public extension FloatingPanelLayoutAnchor {
 }
 
 public extension FloatingPanelIntrinsicLayoutAnchor {
-    func layoutConstraints(_ vc: FloatingPanelController, for position: FloatingPanelRectEdge) -> [NSLayoutConstraint] {
+    func layoutConstraints(_ vc: FloatingPanelController, for position: FloatingPanelPosition) -> [NSLayoutConstraint] {
         let surfaceIntrinsicHeight = vc.surfaceView.intrinsicContentSize.height
         switch self.referenceGuide {
         case .superview:
@@ -167,7 +167,7 @@ public extension FloatingPanelIntrinsicLayoutAnchor {
 
 @objc public protocol FloatingPanelLayout {
     /// TODO: Write doc comment
-    @objc var position: FloatingPanelRectEdge { get }
+    @objc var position: FloatingPanelPosition { get }
 
     /// TODO: Write doc comment
     @objc var initialState: FloatingPanelState { get }
@@ -179,7 +179,7 @@ public extension FloatingPanelIntrinsicLayoutAnchor {
     ///
     /// - Important:
     /// The specified bottom buffer is ignored when `FloatingPanelController.isRemovalInteractionEnabled` is set to true.
-    @objc optional func interactionBuffer(for edge: FloatingPanelRectEdge) -> CGFloat
+    @objc optional func interactionBuffer(for edge: FloatingPanelPosition) -> CGFloat
 
     /// Returns X-axis and width layout constraints of the surface view of a floating panel.
     /// You must not include any Y-axis and height layout constraints of the surface view
@@ -194,7 +194,7 @@ public extension FloatingPanelIntrinsicLayoutAnchor {
 }
 
 extension FloatingPanelLayout {
-    var interactiveEdge: FloatingPanelRectEdge {
+    var interactiveEdge: FloatingPanelPosition {
         switch self.position {
         case .top:
             return .bottom
@@ -222,11 +222,11 @@ open class FloatingPanelDefaultLayout: NSObject, FloatingPanelLayout {
         ]
     }
 
-    open func interactionBuffer(for edge: FloatingPanelRectEdge) -> CGFloat {
+    open func interactionBuffer(for edge: FloatingPanelPosition) -> CGFloat {
         return 6.0
     }
 
-    open var position: FloatingPanelRectEdge {
+    open var position: FloatingPanelPosition {
         return .bottom
     }
 

@@ -225,7 +225,7 @@ class SearchPanelViewController: UIViewController, UITableViewDataSource, UITabl
 }
 
 class SearchPanelLandscapeLayout: FloatingPanelLayout {
-    let position: FloatingPanelRectEdge  = .bottom
+    let position: FloatingPanelPosition  = .bottom
     let initialState: FloatingPanelState = .tip
     var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
         return [

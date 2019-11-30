@@ -61,7 +61,7 @@
                                                                                     edge:UIRectEdgeBottom],
     };
 }
-- (enum FloatingPanelRectEdge)position {
+- (enum FloatingPanelPosition)position {
     return FloatingPanelRectEdgeBottom;
 }
 @end

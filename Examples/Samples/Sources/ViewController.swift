@@ -429,9 +429,9 @@ extension SampleListViewController: FloatingPanelControllerDelegate {
  purposely to check if the library prints an appropriate warning.
  */
 extension SampleListViewController: FloatingPanelLayout {
-    var position: FloatingPanelRectEdge { .bottom }
+    var position: FloatingPanelPosition { .bottom }
     var initialState: FloatingPanelState { .half }
-    var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
+    var layoutAnchors: [FloatingPanelState: FloatingPanelLayoutAnchoring] {
         return [
             .full: FloatingPanelLayoutAnchor(absoluteInset: UIScreen.main.bounds.height == 667.0 ? 18.0 : 16.0, referenceGuide: .safeArea, edge: .top),
             .half: FloatingPanelLayoutAnchor(absoluteInset: 262.0, referenceGuide: .safeArea, edge: .bottom),
@@ -466,7 +466,7 @@ extension SampleListViewController: UIPageViewControllerDelegate {
 }
 
 class BottomEdgeInteractionLayout: FloatingPanelLayout {
-    let position: FloatingPanelRectEdge = .top
+    let position: FloatingPanelPosition = .top
     let initialState: FloatingPanelState = .full
 
     var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
@@ -476,7 +476,7 @@ class BottomEdgeInteractionLayout: FloatingPanelLayout {
             .tip: FloatingPanelLayoutAnchor(absoluteInset: 44.0, referenceGuide: .safeArea, edge: .top)
         ]
     }
-    func interactionBuffer(for edge: FloatingPanelRectEdge) -> CGFloat {
+    func interactionBuffer(for edge: FloatingPanelPosition) -> CGFloat {
         switch edge {
         case .top: return 200.0
         case .bottom: return 261.0 - 22.0
@@ -495,13 +495,13 @@ class IntrinsicPanelLayout: FloatingPanelDefaultLayout {
 
 class NoInteractionBufferPanelLayout: FloatingPanelDefaultLayout {
     override var initialState: FloatingPanelState { .full }
-    override func interactionBuffer(for edge: FloatingPanelRectEdge) -> CGFloat {
+    override func interactionBuffer(for edge: FloatingPanelPosition) -> CGFloat {
         return 0.0
     }
 }
 
 class RemovablePanelLayout: FloatingPanelLayout {
-    let position: FloatingPanelRectEdge = .bottom
+    let position: FloatingPanelPosition = .bottom
     let initialState: FloatingPanelState = .half
 
     var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
@@ -511,7 +511,7 @@ class RemovablePanelLayout: FloatingPanelLayout {
         ]
     }
 
-    func interactionBuffer(for edge: FloatingPanelRectEdge) -> CGFloat {
+    func interactionBuffer(for edge: FloatingPanelPosition) -> CGFloat {
         switch edge {
         case .top: return 200.0
         case .bottom: return 261.0 - 22.0
@@ -524,7 +524,7 @@ class RemovablePanelLayout: FloatingPanelLayout {
 }
 
 class RemovablePanelLandscapeLayout: FloatingPanelLayout {
-    let position: FloatingPanelRectEdge = .bottom
+    let position: FloatingPanelPosition = .bottom
     let initialState: FloatingPanelState = .full
 
     var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
@@ -534,7 +534,7 @@ class RemovablePanelLandscapeLayout: FloatingPanelLayout {
         ]
     }
 
-    func interactionBuffer(for edge: FloatingPanelRectEdge) -> CGFloat {
+    func interactionBuffer(for edge: FloatingPanelPosition) -> CGFloat {
         switch edge {
         case .top: return 6.0
         case .bottom: return 261.0 - 22.0
@@ -547,7 +547,7 @@ class RemovablePanelLandscapeLayout: FloatingPanelLayout {
 }
 
 class ModalPanelLayout: FloatingPanelLayout {
-    let position: FloatingPanelRectEdge = .bottom
+    let position: FloatingPanelPosition = .bottom
     let initialState: FloatingPanelState = .full
 
     var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
@@ -556,7 +556,7 @@ class ModalPanelLayout: FloatingPanelLayout {
         ]
     }
 
-    func interactionBuffer(for edge: FloatingPanelRectEdge) -> CGFloat {
+    func interactionBuffer(for edge: FloatingPanelPosition) -> CGFloat {
         switch edge {
         case .top: return 100.0
         case .bottom: return 6.0
@@ -1158,7 +1158,7 @@ extension TabBarContentViewController: FloatingPanelControllerDelegate {
 
 class OneTabBarPanelLayout: FloatingPanelLayout {
     var initialState: FloatingPanelState { .tip }
-    var position: FloatingPanelRectEdge { .bottom }
+    var position: FloatingPanelPosition { .bottom }
     var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
         return [
             .full: FloatingPanelLayoutAnchor(absoluteInset: 16.0, referenceGuide: .safeArea, edge: .top),
@@ -1169,7 +1169,7 @@ class OneTabBarPanelLayout: FloatingPanelLayout {
 
 class TwoTabBarPanelLayout: FloatingPanelLayout {
     var initialState: FloatingPanelState { .half }
-    var position: FloatingPanelRectEdge { .bottom }
+    var position: FloatingPanelPosition { .bottom }
     var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
         return [
             .full: FloatingPanelLayoutAnchor(absoluteInset: 100.0, referenceGuide: .safeArea, edge: .top),
@@ -1177,7 +1177,7 @@ class TwoTabBarPanelLayout: FloatingPanelLayout {
         ]
     }
 
-    func interactionBuffer(for edge: FloatingPanelRectEdge) -> CGFloat {
+    func interactionBuffer(for edge: FloatingPanelPosition) -> CGFloat {
         switch edge {
         case .top: return 100.0
         case .bottom: return 261.0 - 22.0
@@ -1206,7 +1206,7 @@ class ThreeTabBarPanelLayout: FloatingPanelLayout {
     }
 
     var initialState: FloatingPanelState { .half }
-    var position: FloatingPanelRectEdge { .bottom }
+    var position: FloatingPanelPosition { .bottom }
     var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
         return [
             .full: FloatingPanelLayoutAnchor(absoluteInset: 0.0, referenceGuide: .superview, edge: .top),
@@ -1215,7 +1215,7 @@ class ThreeTabBarPanelLayout: FloatingPanelLayout {
         ]
     }
 
-    func interactionBuffer(for edge: FloatingPanelRectEdge) -> CGFloat {
+    func interactionBuffer(for edge: FloatingPanelPosition) -> CGFloat {
         switch edge {
         case .top: return 6.0
         case .bottom: return 44.0

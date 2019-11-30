@@ -96,7 +96,7 @@ public class FloatingPanelSurfaceView: UIView {
     @available(*, unavailable, renamed: "containerView")
     public var backgroundView: UIView!
 
-    var interactiveEdge: FloatingPanelRectEdge = .top {
+    var interactiveEdge: FloatingPanelPosition = .top {
         didSet {
             guard interactiveEdge != oldValue else { return }
             NSLayoutConstraint.deactivate([containerViewEdgeConstraint,
