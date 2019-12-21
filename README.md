@@ -511,8 +511,8 @@ class ViewController: UIViewController, FloatingPanelControllerDelegate {
         }
     }
 
-    func floatingPanelDidEndDragging(_ vc: FloatingPanelController, withVelocity velocity: CGPoint, targetPosition: FloatingPanelPosition) {
-        if targetPosition != .full {
+    func floatingPanelDidEndDragging(_ vc: FloatingPanelController, withVelocity velocity: CGPoint, targetState: UnsafeMutablePointer<FloatingPanelState>) {
+        if targetState.pointee != .full {
             searchVC.hideHeader()
         }
     }

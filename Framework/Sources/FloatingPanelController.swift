@@ -31,7 +31,7 @@ import UIKit
     func floatingPanelWillBeginDragging(_ vc: FloatingPanelController)
     // called on finger up if the user dragged. velocity is in points/second.
     @objc optional
-    func floatingPanelDidEndDragging(_ vc: FloatingPanelController, withVelocity velocity: CGPoint, targetState: FloatingPanelState)
+    func floatingPanelDidEndDragging(_ vc: FloatingPanelController, withVelocity velocity: CGPoint, targetState: UnsafeMutablePointer<FloatingPanelState>)
     @objc optional
     func floatingPanelWillBeginDecelerating(_ vc: FloatingPanelController) // called on finger up as we are moving
     @objc optional

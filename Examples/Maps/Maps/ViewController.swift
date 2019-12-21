@@ -116,8 +116,8 @@ class ViewController: UIViewController, MKMapViewDelegate, UISearchBarDelegate, 
         }
     }
 
-    func floatingPanelDidEndDragging(_ vc: FloatingPanelController, withVelocity velocity: CGPoint, targetState: FloatingPanelState) {
-        if targetState != .full {
+    func floatingPanelDidEndDragging(_ vc: FloatingPanelController, withVelocity velocity: CGPoint, targetState: UnsafeMutablePointer<FloatingPanelState>) {
+        if targetState.pointee != .full {
             searchVC.hideHeader()
         }
 
@@ -125,7 +125,7 @@ class ViewController: UIViewController, MKMapViewDelegate, UISearchBarDelegate, 
                        delay: 0.0,
                        options: .allowUserInteraction,
                        animations: {
-                        if targetState == .tip {
+                        if targetState.pointee == .tip {
                             self.searchVC.tableView.alpha = 0.0
                         } else {
                             self.searchVC.tableView.alpha = 1.0

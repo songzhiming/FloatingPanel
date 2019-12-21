@@ -82,8 +82,9 @@ class ViewController: UIViewController, FloatingPanelControllerDelegate {
             }
         }
     }
-    func floatingPanelDidEndDragging(_ vc: FloatingPanelController, withVelocity velocity: CGPoint, targetState: FloatingPanelState) {
-        if targetState == .full {
+
+    func floatingPanelDidEndDragging(_ vc: FloatingPanelController, withVelocity velocity: CGPoint, targetState: UnsafeMutablePointer<FloatingPanelState>) {
+        if targetState.pointee == .full {
             // Present top bar with dissolve animation
             UIView.animate(withDuration: 0.25) {
                 self.topBannerView.alpha = 1.0

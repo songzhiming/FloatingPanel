@@ -609,7 +609,7 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         }
 
         let currentY = surfaceEdgeY
-        let targetPosition = self.targetPosition(from: currentY, with: velocity)
+        var targetPosition = self.targetPosition(from: currentY, with: velocity)
         let distance = self.distance(to: targetPosition)
 
         endInteraction(for: targetPosition)
@@ -628,7 +628,7 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate {
         }
 
         if let vc = viewcontroller {
-            vc.delegate?.floatingPanelDidEndDragging?(vc, withVelocity: velocity, targetState: targetPosition)
+            vc.delegate?.floatingPanelDidEndDragging?(vc, withVelocity: velocity, targetState: &targetPosition)
         }
 
         if scrollView != nil, !stopScrollDeceleration,
