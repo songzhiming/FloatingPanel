@@ -1044,7 +1044,7 @@ extension TabBarContentViewController: UITextViewDelegate {
         // Using KVO of `scrollView.contentOffset`). Because it can lead to an
         // infinite loop if a user also resets a content offset as below and,
         // in the situation, a user has to modify the library.
-        if fpc.state != .full, fpc.surfaceView.frame.minY > fpc.surfaceOffset(for: .full) {
+        if fpc.state != .full, fpc.surfaceEdgePosition.y > fpc.surfaceEdgePosition(for: .full).y {
             scrollView.contentOffset = .zero
         }
     }
@@ -1110,8 +1110,9 @@ extension TabBarContentViewController: FloatingPanelControllerDelegate {
             }
         }
 
-        if vc.surfaceView.frame.minY > vc.surfaceOffset(for: .half) {
-            let progress = (vc.surfaceView.frame.minY - vc.surfaceOffset(for: .half)) / (vc.surfaceOffset(for: .tip) - vc.surfaceOffset(for: .half))
+        if vc.surfaceEdgePosition.y > vc.surfaceEdgePosition(for: .half).y {
+            let progress = (vc.surfaceEdgePosition.y - vc.surfaceEdgePosition(for: .half).y)
+                / (vc.surfaceEdgePosition(for: .tip).y - vc.surfaceEdgePosition(for: .half).y)
             threeLayout.leftConstraint.constant = max(min(progress, 1.0), 0.0) * threeLayout.sideMargin
             threeLayout.rightConstraint.constant = -max(min(progress, 1.0), 0.0) * threeLayout.sideMargin
         } else {
