@@ -469,7 +469,7 @@ extension SampleListViewController: UIPageViewControllerDelegate {
 }
 
 class BottomEdgeInteractionLayout: FloatingPanelLayout {
-    var interactiveEdge: UIRectEdge = .bottom
+    var interactiveEdge: FloatingPanelRectEdge = .bottom
     var initialPosition: FloatingPanelPosition = .full
 
     func insetFor(position: FloatingPanelPosition) -> CGFloat? {
@@ -1050,7 +1050,7 @@ extension TabBarContentViewController: UITextViewDelegate {
         // Using KVO of `scrollView.contentOffset`). Because it can lead to an
         // infinite loop if a user also resets a content offset as below and,
         // in the situation, a user has to modify the library.
-        if fpc.position != .full, fpc.surfaceView.frame.minY > fpc.originYOfSurface(for: .full) {
+        if fpc.position != .full, fpc.surfaceView.frame.minY > fpc.surfaceOffset(for: .full) {
             scrollView.contentOffset = .zero
         }
     }
@@ -1116,8 +1116,8 @@ extension TabBarContentViewController: FloatingPanelControllerDelegate {
             }
         }
 
-        if vc.surfaceView.frame.minY > vc.originYOfSurface(for: .half) {
-            let progress = (vc.surfaceView.frame.minY - vc.originYOfSurface(for: .half)) / (vc.originYOfSurface(for: .tip) - vc.originYOfSurface(for: .half))
+        if vc.surfaceView.frame.minY > vc.surfaceOffset(for: .half) {
+            let progress = (vc.surfaceView.frame.minY - vc.surfaceOffset(for: .half)) / (vc.surfaceOffset(for: .tip) - vc.surfaceOffset(for: .half))
             threeLayout.leftConstraint.constant = max(min(progress, 1.0), 0.0) * threeLayout.sideMargin
             threeLayout.rightConstraint.constant = -max(min(progress, 1.0), 0.0) * threeLayout.sideMargin
         } else {
