@@ -22,8 +22,8 @@ class FloatingPanelLayoutTests: XCTestCase {
         class FloatingPanelLayoutWithHidden: FloatingPanelLayout {
             var layoutAnchors: [FloatingPanelState: FloatingPanelLayoutAnchoring]  {
                 return [
-                    .full: FloatingPanelLayoutAnchor(absoluteInset: 18.0, referenceGuide: .safeArea, edge: .top),
-                    .half: FloatingPanelLayoutAnchor(fractionalInset: 0.5, referenceGuide: .safeArea, edge: .bottom),
+                    .full: FloatingPanelLayoutAnchor(absoluteOffset: 18.0, referenceGuide: .safeArea, from: .top),
+                    .half: FloatingPanelLayoutAnchor(fractionalOffset: 0.5, referenceGuide: .safeArea, from: .bottom),
                     .hidden: FloatingPanelLayoutAnchor.hidden
                 ]
             }
@@ -33,8 +33,8 @@ class FloatingPanelLayoutTests: XCTestCase {
         class FloatingPanelLayout2Positions: FloatingPanelLayout {
             var layoutAnchors: [FloatingPanelState: FloatingPanelLayoutAnchoring]  {
                 return [
-                    .half: FloatingPanelLayoutAnchor(fractionalInset: 0.5, referenceGuide: .safeArea, edge: .bottom),
-                    .tip: FloatingPanelLayoutAnchor(absoluteInset: 69.0, referenceGuide: .safeArea, edge: .bottom),
+                    .half: FloatingPanelLayoutAnchor(fractionalOffset: 0.5, referenceGuide: .safeArea, from: .bottom),
+                    .tip: FloatingPanelLayoutAnchor(absoluteOffset: 69.0, referenceGuide: .safeArea, from: .bottom),
                 ]
             }
             let initialState: FloatingPanelState = .tip
@@ -210,7 +210,7 @@ class FloatingPanelLayoutTests: XCTestCase {
         class FloatingPanelLayout2Positions: FloatingPanelLayout {
             var layoutAnchors: [FloatingPanelState: FloatingPanelLayoutAnchoring]  {
                 return [
-                    .full: FloatingPanelLayoutAnchor(absoluteInset: 18.0, referenceGuide: .safeArea, edge: .bottom),
+                    .full: FloatingPanelLayoutAnchor(absoluteOffset: 18.0, referenceGuide: .safeArea, from: .bottom),
                     .hidden: FloatingPanelLayoutAnchor.hidden,
                 ]
             }

@@ -37,9 +37,9 @@ class FloatingPanelTestLayout: FloatingPanelLayout {
     }
     var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
         return [
-            .full: FloatingPanelLayoutAnchor(absoluteInset: 20.0, referenceGuide: referenceGuide, edge: .top),
-            .half: FloatingPanelLayoutAnchor(absoluteInset: 250.0, referenceGuide: referenceGuide, edge: .bottom),
-            .tip: FloatingPanelLayoutAnchor(absoluteInset: 60.0, referenceGuide: referenceGuide, edge: .bottom),
+            .full: FloatingPanelLayoutAnchor(absoluteOffset: 20.0, referenceGuide: referenceGuide, from: .top),
+            .half: FloatingPanelLayoutAnchor(absoluteOffset: 250.0, referenceGuide: referenceGuide, from: .bottom),
+            .tip: FloatingPanelLayoutAnchor(absoluteOffset: 60.0, referenceGuide: referenceGuide, from: .bottom),
         ]
     }
 }
@@ -56,9 +56,9 @@ class FloatingPanelTop2BottomTestLayout: FloatingPanelLayout {
     }
     var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
         return [
-            .full: FloatingPanelLayoutAnchor(absoluteInset: 0.0, referenceGuide: referenceGuide, edge: .bottom),
-            .half: FloatingPanelLayoutAnchor(absoluteInset: 250.0, referenceGuide: referenceGuide, edge: .top),
-            .tip: FloatingPanelLayoutAnchor(absoluteInset: 60.0, referenceGuide: referenceGuide, edge: .top),
+            .full: FloatingPanelLayoutAnchor(absoluteOffset: 0.0, referenceGuide: referenceGuide, from: .bottom),
+            .half: FloatingPanelLayoutAnchor(absoluteOffset: 250.0, referenceGuide: referenceGuide, from: .top),
+            .tip: FloatingPanelLayoutAnchor(absoluteOffset: 60.0, referenceGuide: referenceGuide, from: .top),
         ]
     }
 }

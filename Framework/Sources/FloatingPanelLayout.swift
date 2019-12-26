@@ -13,36 +13,52 @@ import UIKit
 @objc public enum FloatingPanelPosition: Int {
     case top
     case bottom
+    /* TODO:
+      case left
+      case right
+      case topLeft
+      case topRight
+      case bottomLeft
+      case bottomRight
+     */
+}
+
+@objc public enum FloatingPanelDirectionalEdge: Int {
+    case auto
+    case top
+    case leading
+    case bottom
+    case trailing
 }
 
 @objc public protocol FloatingPanelLayoutAnchoring {
     var referenceGuide: FloatingPanelLayoutReferenceGuide { get }
-    var referenceEdge: UIRectEdge { get }
+    var referenceEdge: FloatingPanelDirectionalEdge { get }
     var isAbsolute: Bool { get }
-    var value: CGFloat { get }
+    var offset: CGFloat { get }
     func layoutConstraints(_ vc: FloatingPanelController, for position: FloatingPanelPosition) -> [NSLayoutConstraint]
 }
 
 @objc final public class FloatingPanelLayoutAnchor: NSObject, FloatingPanelLayoutAnchoring /*, NSCopying */ {
-    public static let hidden: FloatingPanelLayoutAnchor = FloatingPanelLayoutAnchor(absoluteInset: 0.0, referenceGuide: .superview, edge: [])
-    @objc public init(absoluteInset: CGFloat, referenceGuide: FloatingPanelLayoutReferenceGuide, edge: UIRectEdge) {
-        self.inset = absoluteInset
+    public static let hidden: FloatingPanelLayoutAnchor = FloatingPanelLayoutAnchor(absoluteOffset: 0.0, referenceGuide: .superview)
+
+    @objc public init(absoluteOffset: CGFloat, referenceGuide: FloatingPanelLayoutReferenceGuide, from edge: FloatingPanelDirectionalEdge = .auto) {
+        self.offset = absoluteOffset
         self.referenceGuide = referenceGuide
         self.referenceEdge = edge
         self.isAbsolute = true
     }
-    @objc public init(fractionalInset: CGFloat, referenceGuide: FloatingPanelLayoutReferenceGuide, edge: UIRectEdge) {
-        self.inset = fractionalInset
+
+    @objc public init(fractionalOffset: CGFloat, referenceGuide: FloatingPanelLayoutReferenceGuide, from edge: FloatingPanelDirectionalEdge = .auto) {
+        self.offset = fractionalOffset
         self.referenceGuide = referenceGuide
         self.referenceEdge = edge
         self.isAbsolute = false
     }
-    let inset: CGFloat
-    @objc public var value: CGFloat {
-        return inset
-    }
+
+    @objc public let offset: CGFloat
     @objc public let referenceGuide: FloatingPanelLayoutReferenceGuide
-    @objc public let referenceEdge: UIRectEdge
+    @objc public let referenceEdge: FloatingPanelDirectionalEdge
     @objc public let isAbsolute: Bool
 }
 
@@ -68,15 +84,15 @@ public extension FloatingPanelLayoutAnchor {
             case .top:
                 if isAbsolute == false {
                     let offsetAnchor = vc.view.topAnchor.anchorWithOffset(to: edgeAnchor)
-                    return [offsetAnchor.constraint(equalTo: vc.view.heightAnchor, multiplier: value)]
+                    return [offsetAnchor.constraint(equalTo: vc.view.heightAnchor, multiplier: offset)]
                 }
-                return [edgeAnchor.constraint(equalTo:  vc.view.topAnchor, constant: value)]
+                return [edgeAnchor.constraint(equalTo:  vc.view.topAnchor, constant: offset)]
             case .bottom:
                 if isAbsolute == false {
                     let offsetAnchor = edgeAnchor.anchorWithOffset(to: vc.view.bottomAnchor)
-                    return [offsetAnchor.constraint(equalTo: vc.view.heightAnchor, multiplier: value)]
+                    return [offsetAnchor.constraint(equalTo: vc.view.heightAnchor, multiplier: offset)]
                 }
-                return [edgeAnchor.constraint(equalTo:  vc.view.bottomAnchor, constant: -value)]
+                return [edgeAnchor.constraint(equalTo:  vc.view.bottomAnchor, constant: -offset)]
             default:
                 fatalError("Unsupported edges")
             }
@@ -85,15 +101,15 @@ public extension FloatingPanelLayoutAnchor {
             case .top:
                 if isAbsolute == false {
                     let offsetAnchor = vc.fp_safeAreaLayoutGuide.topAnchor.anchorWithOffset(to: edgeAnchor)
-                    return [offsetAnchor.constraint(equalTo: vc.fp_safeAreaLayoutGuide.heightAnchor, multiplier: value)]
+                    return [offsetAnchor.constraint(equalTo: vc.fp_safeAreaLayoutGuide.heightAnchor, multiplier: offset)]
                 }
-                return [edgeAnchor.constraint(equalTo:  vc.fp_safeAreaLayoutGuide.topAnchor, constant: value)]
+                return [edgeAnchor.constraint(equalTo:  vc.fp_safeAreaLayoutGuide.topAnchor, constant: offset)]
             case .bottom:
                 if isAbsolute == false {
                     let offsetAnchor = edgeAnchor.anchorWithOffset(to: vc.fp_safeAreaLayoutGuide.bottomAnchor)
-                    return [offsetAnchor.constraint(equalTo: vc.fp_safeAreaLayoutGuide.heightAnchor, multiplier: value)]
+                    return [offsetAnchor.constraint(equalTo: vc.fp_safeAreaLayoutGuide.heightAnchor, multiplier: offset)]
                 }
-                return [edgeAnchor.constraint(equalTo:  vc.fp_safeAreaLayoutGuide.bottomAnchor, constant: -value)]
+                return [edgeAnchor.constraint(equalTo:  vc.fp_safeAreaLayoutGuide.bottomAnchor, constant: -offset)]
             default:
                 fatalError("Unsupported edges")
             }
@@ -102,27 +118,17 @@ public extension FloatingPanelLayoutAnchor {
 }
 
 @objc final public class FloatingPanelIntrinsicLayoutAnchor: NSObject, FloatingPanelLayoutAnchoring /*, NSCopying */ {
-    @objc public init(absoluteVisibleOffset offset: CGFloat, referenceGuide: FloatingPanelLayoutReferenceGuide) {
+    // offset = 1.0: All content visible
+    // offset = 0.0: All content invisible
+    @objc public init(fractionalOffset offset: CGFloat, referenceGuide: FloatingPanelLayoutReferenceGuide) {
         self.offset = offset
         self.referenceGuide = referenceGuide
-        self.referenceEdge = []
-        self.isAbsolute = true
+        self.referenceEdge = .auto
     }
-    // offset = 0.0: All content visible
-    // offset = 1.0: All content invisible
-    @objc public init(fractionalVisibleOffset offset: CGFloat, referenceGuide: FloatingPanelLayoutReferenceGuide) {
-        self.offset = offset
-        self.referenceGuide = referenceGuide
-        self.referenceEdge = []
-        self.isAbsolute = false
-    }
-    let offset: CGFloat
-    @objc public var value: CGFloat {
-        return offset
-    }
+    @objc public let offset: CGFloat
     @objc public let referenceGuide: FloatingPanelLayoutReferenceGuide
-    @objc public let referenceEdge: UIRectEdge
-    @objc public let isAbsolute: Bool
+    @objc public let referenceEdge: FloatingPanelDirectionalEdge
+    @objc public let isAbsolute: Bool = false
 }
 
 public extension FloatingPanelIntrinsicLayoutAnchor {
@@ -142,7 +148,7 @@ public extension FloatingPanelIntrinsicLayoutAnchor {
                 if isAbsolute {
                     return offsetAnchor.constraint(equalToConstant: surfaceIntrinsicHeight - offset)
                 }
-                return offsetAnchor.constraint(equalToConstant: surfaceIntrinsicHeight * (1 - offset))
+                return offsetAnchor.constraint(equalToConstant: surfaceIntrinsicHeight * offset)
             }()
             return [constraint]
         case .safeArea:
@@ -158,7 +164,7 @@ public extension FloatingPanelIntrinsicLayoutAnchor {
                 if isAbsolute {
                     return offsetAnchor.constraint(equalToConstant: surfaceIntrinsicHeight - offset)
                 }
-                return offsetAnchor.constraint(equalToConstant: surfaceIntrinsicHeight * (1 - offset))
+                return offsetAnchor.constraint(equalToConstant: surfaceIntrinsicHeight * offset)
             }()
             return [constraint]
         }
@@ -215,9 +221,9 @@ open class FloatingPanelDefaultLayout: NSObject, FloatingPanelLayout {
 
     open var layoutAnchors: [FloatingPanelState: FloatingPanelLayoutAnchoring]  {
         return [
-            .full: FloatingPanelLayoutAnchor(absoluteInset: 18.0, referenceGuide: .safeArea, edge: .top),
-            .half: FloatingPanelLayoutAnchor(fractionalInset: 0.5, referenceGuide: .safeArea, edge: .bottom),
-            .tip: FloatingPanelLayoutAnchor(absoluteInset: 69.0, referenceGuide: .safeArea, edge: .bottom),
+            .full: FloatingPanelLayoutAnchor(absoluteOffset: 18.0, referenceGuide: .safeArea, from: .top),
+            .half: FloatingPanelLayoutAnchor(fractionalOffset: 0.5, referenceGuide: .safeArea, from: .bottom),
+            .tip: FloatingPanelLayoutAnchor(absoluteOffset: 69.0, referenceGuide: .safeArea, from: .bottom),
             //.hidden: FloatingPanelLayoutAnchor.hidden
         ]
     }
@@ -392,67 +398,59 @@ class FloatingPanelLayoutAdapter {
             return .nan
         }
 
-        switch anchor {
-        case let ianchor as FloatingPanelIntrinsicLayoutAnchor:
+        if let ianchor = anchor as? FloatingPanelIntrinsicLayoutAnchor {
+            var ret: CGFloat
             let surfaceIntrinsicHeight = surfaceView.intrinsicContentSize.height
             switch layout.position {
             case .top:
-                var ret = surfaceIntrinsicHeight
+                ret = 0.0
                 if ianchor.referenceGuide == .safeArea {
                     ret += safeAreaInsets.top
                 }
-                if ianchor.isAbsolute {
-                    return ret - ianchor.offset
-                } else {
-                    return ret - surfaceIntrinsicHeight * ianchor.offset
-                }
+                ret += surfaceIntrinsicHeight * ianchor.offset
             case .bottom:
-                var ret = bounds.height - surfaceIntrinsicHeight
+                ret = bounds.height
                 if ianchor.referenceGuide == .safeArea {
                     ret -= safeAreaInsets.bottom
                 }
-                if ianchor.isAbsolute {
-                    return ret + ianchor.offset
-                } else {
-                    return ret + surfaceIntrinsicHeight * ianchor.offset
-                }
+                ret -= surfaceIntrinsicHeight * ianchor.offset
             }
-        default:
-            switch anchor.referenceGuide {
-            case .safeArea:
-                switch anchor.referenceEdge {
-                case .top:
-                    let base = safeAreaBounds.minY
-                    if anchor.isAbsolute {
-                        return base + anchor.value
-                    }
-                    return base + safeAreaBounds.height * anchor.value
-                case .bottom:
-                    let base = safeAreaBounds.maxY
-                    if anchor.isAbsolute {
-                        return base - anchor.value
-                    }
-                    return base - (safeAreaBounds.height * anchor.value)
-                default:
-                    fatalError("Unsupported edges")
+            return ret
+        }
+        switch anchor.referenceGuide {
+        case .safeArea:
+            switch anchor.referenceEdge {
+            case .top:
+                let base = safeAreaBounds.minY
+                if anchor.isAbsolute {
+                    return base + anchor.offset
                 }
-            case .superview:
-                switch anchor.referenceEdge {
-                case .top:
-                    let base = bounds.minY
-                    if anchor.isAbsolute {
-                        return base + anchor.value
-                    }
-                    return base + bounds.height * anchor.value
-                case .bottom:
-                    let base = bounds.maxY
-                    if anchor.isAbsolute {
-                        return base - anchor.value
-                    }
-                    return base - (bounds.height * anchor.value)
-                default:
-                    fatalError("Unsupported edges")
+                return base + safeAreaBounds.height * anchor.offset
+            case .bottom:
+                let base = safeAreaBounds.maxY
+                if anchor.isAbsolute {
+                    return base - anchor.offset
                 }
+                return base - (safeAreaBounds.height * anchor.offset)
+            default:
+                fatalError("Unsupported edges")
+            }
+        case .superview:
+            switch anchor.referenceEdge {
+            case .top:
+                let base = bounds.minY
+                if anchor.isAbsolute {
+                    return base + anchor.offset
+                }
+                return base + bounds.height * anchor.offset
+            case .bottom:
+                let base = bounds.maxY
+                if anchor.isAbsolute {
+                    return base - anchor.offset
+                }
+                return base - (bounds.height * anchor.offset)
+            default:
+                fatalError("Unsupported edges")
             }
         }
     }

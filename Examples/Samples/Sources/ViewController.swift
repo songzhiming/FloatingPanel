@@ -433,9 +433,9 @@ extension SampleListViewController: FloatingPanelLayout {
     var initialState: FloatingPanelState { .half }
     var layoutAnchors: [FloatingPanelState: FloatingPanelLayoutAnchoring] {
         return [
-            .full: FloatingPanelLayoutAnchor(absoluteInset: UIScreen.main.bounds.height == 667.0 ? 18.0 : 16.0, referenceGuide: .safeArea, edge: .top),
-            .half: FloatingPanelLayoutAnchor(absoluteInset: 262.0, referenceGuide: .safeArea, edge: .bottom),
-            .tip: FloatingPanelLayoutAnchor(absoluteInset: 69.0, referenceGuide: .safeArea, edge: .bottom)
+            .full: FloatingPanelLayoutAnchor(absoluteOffset: UIScreen.main.bounds.height == 667.0 ? 18.0 : 16.0, referenceGuide: .safeArea, from: .top),
+            .half: FloatingPanelLayoutAnchor(absoluteOffset: 262.0, referenceGuide: .safeArea, from: .bottom),
+            .tip: FloatingPanelLayoutAnchor(absoluteOffset: 69.0, referenceGuide: .safeArea, from: .bottom)
         ]
     }
 }
@@ -471,9 +471,9 @@ class BottomEdgeInteractionLayout: FloatingPanelLayout {
 
     var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
         return [
-            .full: FloatingPanelLayoutAnchor(absoluteInset: 88.0, referenceGuide: .safeArea, edge: .bottom),
-            .half: FloatingPanelLayoutAnchor(absoluteInset: 216.0, referenceGuide: .safeArea, edge: .top),
-            .tip: FloatingPanelLayoutAnchor(absoluteInset: 44.0, referenceGuide: .safeArea, edge: .top)
+            .full: FloatingPanelLayoutAnchor(absoluteOffset: 88.0, referenceGuide: .safeArea, from: .bottom),
+            .half: FloatingPanelLayoutAnchor(absoluteOffset: 216.0, referenceGuide: .safeArea, from: .top),
+            .tip: FloatingPanelLayoutAnchor(absoluteOffset: 44.0, referenceGuide: .safeArea, from: .top)
         ]
     }
     func interactionBuffer(for edge: FloatingPanelPosition) -> CGFloat {
@@ -488,7 +488,7 @@ class IntrinsicPanelLayout: FloatingPanelDefaultLayout {
     override var initialState: FloatingPanelState { .full }
     override var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
         return [
-            .full: FloatingPanelIntrinsicLayoutAnchor(absoluteVisibleOffset: 0.0, referenceGuide: .safeArea)
+            .full: FloatingPanelIntrinsicLayoutAnchor(fractionalOffset: 1.0, referenceGuide: .safeArea)
         ]
     }
 }
@@ -506,8 +506,8 @@ class RemovablePanelLayout: FloatingPanelLayout {
 
     var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
         return [
-            .full: FloatingPanelIntrinsicLayoutAnchor(absoluteVisibleOffset: 0.0, referenceGuide: .safeArea),
-            .half: FloatingPanelLayoutAnchor(absoluteInset: 130.0, referenceGuide: .safeArea, edge: .bottom)
+            .full: FloatingPanelIntrinsicLayoutAnchor(fractionalOffset: 1.0, referenceGuide: .safeArea),
+            .half: FloatingPanelLayoutAnchor(absoluteOffset: 130.0, referenceGuide: .safeArea, from: .bottom)
         ]
     }
 
@@ -529,8 +529,8 @@ class RemovablePanelLandscapeLayout: FloatingPanelLayout {
 
     var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
         return [
-            .full: FloatingPanelIntrinsicLayoutAnchor(absoluteVisibleOffset: 0.0, referenceGuide: .safeArea),
-            .half: FloatingPanelLayoutAnchor(absoluteInset: 216.0, referenceGuide: .safeArea, edge: .bottom)
+            .full: FloatingPanelIntrinsicLayoutAnchor(fractionalOffset: 1.0, referenceGuide: .safeArea),
+            .half: FloatingPanelLayoutAnchor(absoluteOffset: 216.0, referenceGuide: .safeArea, from: .bottom)
         ]
     }
 
@@ -552,7 +552,7 @@ class ModalPanelLayout: FloatingPanelLayout {
 
     var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
         return [
-            .full: FloatingPanelIntrinsicLayoutAnchor(absoluteVisibleOffset: 0.0, referenceGuide: .safeArea),
+            .full: FloatingPanelIntrinsicLayoutAnchor(fractionalOffset: 1.0, referenceGuide: .safeArea),
         ]
     }
 
@@ -1162,8 +1162,8 @@ class OneTabBarPanelLayout: FloatingPanelLayout {
     var position: FloatingPanelPosition { .bottom }
     var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
         return [
-            .full: FloatingPanelLayoutAnchor(absoluteInset: 16.0, referenceGuide: .safeArea, edge: .top),
-            .tip: FloatingPanelLayoutAnchor(absoluteInset: 22.0, referenceGuide: .safeArea, edge: .bottom)
+            .full: FloatingPanelLayoutAnchor(absoluteOffset: 16.0, referenceGuide: .safeArea, from: .top),
+            .tip: FloatingPanelLayoutAnchor(absoluteOffset: 22.0, referenceGuide: .safeArea, from: .bottom)
         ]
     }
 }
@@ -1173,8 +1173,8 @@ class TwoTabBarPanelLayout: FloatingPanelLayout {
     var position: FloatingPanelPosition { .bottom }
     var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
         return [
-            .full: FloatingPanelLayoutAnchor(absoluteInset: 100.0, referenceGuide: .safeArea, edge: .top),
-            .half: FloatingPanelLayoutAnchor(absoluteInset: 261.0, referenceGuide: .safeArea, edge: .bottom)
+            .full: FloatingPanelLayoutAnchor(absoluteOffset: 100.0, referenceGuide: .safeArea, from: .top),
+            .half: FloatingPanelLayoutAnchor(absoluteOffset: 261.0, referenceGuide: .safeArea, from: .bottom)
         ]
     }
 
@@ -1210,9 +1210,9 @@ class ThreeTabBarPanelLayout: FloatingPanelLayout {
     var position: FloatingPanelPosition { .bottom }
     var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
         return [
-            .full: FloatingPanelLayoutAnchor(absoluteInset: 0.0, referenceGuide: .superview, edge: .top),
-            .half: FloatingPanelLayoutAnchor(absoluteInset: 261.0 + parentVC.layoutInsets.bottom, referenceGuide: .superview, edge: .bottom),
-            .tip: FloatingPanelLayoutAnchor(absoluteInset: 88.0 + parentVC.layoutInsets.bottom, referenceGuide: .superview, edge: .bottom),
+            .full: FloatingPanelLayoutAnchor(absoluteOffset: 0.0, referenceGuide: .superview, from: .top),
+            .half: FloatingPanelLayoutAnchor(absoluteOffset: 261.0 + parentVC.layoutInsets.bottom, referenceGuide: .superview, from: .bottom),
+            .tip: FloatingPanelLayoutAnchor(absoluteOffset: 88.0 + parentVC.layoutInsets.bottom, referenceGuide: .superview, from: .bottom),
         ]
     }
 

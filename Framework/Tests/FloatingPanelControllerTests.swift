@@ -217,12 +217,12 @@ private class MyZombieViewController: UIViewController, FloatingPanelLayout, Flo
 
     var layoutAnchors: [FloatingPanelState : FloatingPanelLayoutAnchoring] {
         return [
-            .full: FloatingPanelLayoutAnchor(absoluteInset: UIScreen.main.bounds.height == 667.0 ? 18.0 : 16.0,
-                                             referenceGuide: .superview, edge: .top),
-            .half: FloatingPanelLayoutAnchor(absoluteInset: 250.0,
-                                             referenceGuide: .superview, edge: .bottom),
-            .tip: FloatingPanelLayoutAnchor(absoluteInset: 60.0,
-                                            referenceGuide: .superview, edge: .bottom),
+            .full: FloatingPanelLayoutAnchor(absoluteOffset: UIScreen.main.bounds.height == 667.0 ? 18.0 : 16.0,
+                                             referenceGuide: .superview, from: .top),
+            .half: FloatingPanelLayoutAnchor(absoluteOffset: 250.0,
+                                             referenceGuide: .superview, from: .bottom),
+            .tip: FloatingPanelLayoutAnchor(absoluteOffset: 60.0,
+                                            referenceGuide: .superview, from: .bottom),
         ]
     }
 }
